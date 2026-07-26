@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodePath Learning Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <button class="toggle-sidebar-btn" id="sidebarToggleBtn" title="Toggle Sidebar">❮</button>
+
+    <header class="sidebar-header">
+      <div>
+        <div class="brand-title">
+          <span>CP</span> CodePath
+        </div>
+        <div class="brand-subtitle">Learn · Build · Master</div>
+      </div>
+    </header>
+
+    <nav class="sidebar-nav" aria-label="Primary">
+      <a href="#" class="nav-item active" data-view="view-dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-view="view-course-map">
+        <span class="nav-icon">🗺️</span> Course Map
+      </a>
+      <a href="#" class="nav-item" data-view="view-workspace">
+        <span class="nav-icon">💻</span> Workspace
+      </a>
+      <a href="#" class="nav-item" data-view="view-profile">
+        <span class="nav-icon">🧑‍🎨</span> Profile
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar-mini">BS</div>
+        <div class="user-details">
+          <div class="user-name">Bhuvi Singh</div>
+          <div class="user-stats" id="sidebarUserStats">Lv.7 • 13,240 XP</div>
+        </div>
+      </div>
+      <button class="btn-reset" id="resetProgressBtn" type="button" title="Reset Progress">⟲</button>
+    </div>
+  </aside>
+
+  <main class="main-container">
+    <div class="view-container" id="view-dashboard">
+
+      <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li><a href="#" data-view="view-dashboard">Dashboard</a></li>
+          <li aria-hidden="true">›</li>
+          <li><a href="#" data-view="view-course-map">AP CS A</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page">Unit 1.1</li>
+        </ol>
+      </nav>
+
+      <header class="top-header">
+        <div>
+          <h1 class="welcome-title">Welcome back, Bhuvi 👋</h1>
+          <p class="welcome-subtitle" id="welcomeSubtitle">You're on a 🔥 14 day streak. Keep the momentum going!</p>
+        </div>
+        <div class="total-xp-badge">
+          <span>🏆</span>
+          <div>
+            <div class="xp-label">Total XP</div>
+            <div id="xpTotalValue">1,240</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-grid">
+
+        <section class="content-column">
+
+          <section class="hero-card">
+            <div class="hero-content">
+              <span class="banner-tag">☉ IN PROGRESS</span>
+              <h2 class="hero-title" id="heroTitle">Declaring vs. Initializing Variables and Memory Assignment</h2>
+              <p class="hero-sub" id="heroSub">Unit 1.1 · Primitive Types &amp; Variables</p>
+            </div>
+            <button class="btn-primary btn-hero" type="button" id="continueLessonBtn">Continue Lesson →</button>
+          </section>
+
+          <div class="stats-row">
+            <div class="card stat-card">
+              <div class="stat-label">LEVEL PROGRESS</div>
+              <div class="circle-progress" id="levelCircleValue">7</div>
+              <div class="stat-sub" id="xpProgressText">1240 / 2000 XP</div>
+            </div>
+
+            <div class="stat-stack">
+              <div class="stat-card stat-card--flex">
+                <div class="stat-value" id="streakStatValue">🔥 14</div>
+                <div class="stat-label">DAY STREAK</div>
+              </div>
+              <div class="stat-card stat-card--flex stat-card--lessons">
+                <div class="stat-value" id="lessonsDoneValue">✓ 12</div>
+                <div class="stat-label">LESSONS DONE</div>
+              </div>
+            </div>
+          </div>
+
+          <article class="card recommended-section">
+            <div class="section-header">
+              <h2 class="section-title">Recommended Next</h2>
+              <span class="badge-pill">AP CS A • Unit 1.1</span>
+            </div>
+
+            <div class="recommendation-list" id="recommendationList">
+              <!-- Rendered by app.js from COURSE_DATA + saved progress -->
+            </div>
+          </article>
+
+          <article class="card my-courses-section">
+            <div class="section-header">
+              <h2 class="section-title">My Courses</h2>
+              <span style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer;">↗</span>
+            </div>
+
+            <div class="progress-block">
+              <div class="progress-block-header">
+                <h3 class="progress-unit-title">Unit 1.1: Primitive Types &amp; Variables</h3>
+                <span class="progress-percent" id="progressPercentValue">33%</span>
+              </div>
+              <div class="progress-bar-bg progress-bar-bg--lg">
+                <div class="progress-bar-fill" id="progressBarFillEl" style="width: 33%;"></div>
+              </div>
+
+              <ul class="lesson-jump-list" id="lessonJumpList">
+                <!-- Rendered by app.js from COURSE_DATA + saved progress -->
+              </ul>
+            </div>
+          </article>
+
+        </section>
+
+        <aside class="side-column">
+
+          <div class="card character-preview">
+            <div class="character-preview-row">
+              <div class="avatar-preview avatar-preview--sm">👩‍💻</div>
+              <div>
+                <div class="character-name">My Character</div>
+                <span class="badge-pill" id="characterLevelBadge">☆ Lv.7</span>
+              </div>
+            </div>
+            <button class="btn-outline" type="button" id="customizeCharacterBtn">Customize Character</button>
+          </div>
+
+          <details class="collapsible-card" open>
+            <summary>
+              <span class="section-title" style="font-size: 0.95rem;">Unlock Progress</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">Next: Lv.8</span>
+            </summary>
+
+            <div class="collapsible-content">
+              <div class="progress-bar-bg" style="background: #e2e8f0; height: 8px;">
+                <div class="progress-bar-fill" id="unlockBarFill" style="width: 62%; background: var(--color-teal);">
+                </div>
+              </div>
+              <div
+                style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">
+                <span id="unlockXpCurrent">1240 XP</span>
+                <span id="unlockXpTarget">2000 XP</span>
+              </div>
+
+              <div
+                style="background: var(--bg-accent-peach); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem;">
+                <strong>Next Unlock at Lv.8</strong>
+                <div style="margin-top: 0.3rem; font-size: 0.75rem; color: var(--text-muted);">
+                  <div>🗣 Mohawk Hair Style</div>
+                  <div>🎧 Headphones Accessory</div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="collapsible-card" open>
+            <summary>
+              <span class="section-title" style="font-size: 0.95rem;">Achievements</span>
+              <a href="#" class="view-all-link" onclick="event.stopPropagation()">View All</a>
+            </summary>
+
+            <div class="collapsible-content">
+              <div class="achievements-grid" id="achievementsGrid">
+                <!-- Rendered by app.js from ACHIEVEMENTS -->
+              </div>
+            </div>
+          </details>
+
+        </aside>
+
+      </div>
+    </div><!-- /#view-dashboard -->
+  </main>
+
+  <dialog class="modal" id="characterModal" aria-labelledby="characterModalTitle">
+    <div class="modal-header">
+      <h2 id="characterModalTitle">Customize Character</h2>
+      <button class="modal-close" id="closeCharacterModal" type="button" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="avatar-preview">👩‍💻</div>
+
+      <div class="tab-bar">
+        <div class="tab-item">BODY</div>
+        <div class="tab-item active">OUTFIT</div>
+        <div class="tab-item">HAIR</div>
+        <div class="tab-item" title="ACCESSORY">ACCESSORY</div>
+      </div>
+
+      <div class="item-grid" id="avatarItemGrid">
+        <!-- Rendered by app.js from AVATAR_SHOP.outfits + saved progress -->
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
