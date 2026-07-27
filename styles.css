@@ -752,6 +752,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.lesson-dot-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  flex-shrink: 0;
 }
 
 .lesson-card.completed .lesson-status-icon {
@@ -760,13 +771,6 @@ body {
 
 .lesson-card.in-progress .lesson-status-icon {
   --icon-color: var(--color-orange);
-}
-
-.lesson-dot-icon {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-  background-color: #cbd5e1;
 }
 
 .lesson-card-meta {
