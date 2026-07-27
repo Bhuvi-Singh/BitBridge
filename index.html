@@ -100,7 +100,28 @@
             </div>
           </div>
           <div class="level-info">
-            <h3 class="level-title-display" id="userLevelTitle">Beginner Coder</h3>
+            <div class="level-title-row">
+              <h3 class="level-title-display" id="userLevelTitle">Beginner Coder</h3>
+              <span class="xp-info-wrapper">
+                <button class="xp-info-btn" id="xpInfoBtn" type="button" aria-label="How XP works">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.5m0 3h.008v.008h-.008v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </button>
+                <div class="xp-tooltip" role="tooltip">
+                  <strong>Earning XP</strong>
+                  <ul>
+                    <li>Watch a video / read article: <b>+10 XP</b></li>
+                    <li>Visualizer / sandbox exploration: <b>+15 XP</b></li>
+                    <li>Quiz answered (right or wrong): <b>+5 XP</b></li>
+                  </ul>
+                  <strong>Level Unlocks</strong>
+                  <p>Hitting each new level automatically unlocks avatar cosmetics (hats, shirts, color palettes,
+                    badges) in the customization drawer.</p>
+                </div>
+              </span>
+            </div>
             <p class="xp-counter-text" id="userXpDisplay">0 / 1000 XP</p>
             <div class="xp-bar-container">
               <div class="xp-bar-fill" id="xpBarFill" style="width: 0%;"></div>
@@ -150,12 +171,42 @@
             <div class="stat-value" id="completedLessonsValue">0</div>
           </div>
         </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper freeze-theme">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286Zm0 13.036h.008v.008H12v-.008Z" />
+            </svg>
+          </div>
+          <div class="stat-details">
+            <div class="stat-label">Streak Freezes</div>
+            <div class="stat-value" id="streakFreezesValue">0</div>
+          </div>
+        </div>
       </section>
 
-      <section class="dashboard-section">
-        <h2 class="section-title">Achievements</h2>
-        <div class="achievements-grid" id="achievementsGrid">
+      <section class="dashboard-columns">
+        <div class="calendar-card">
+          <div class="calendar-header">
+            <h2 class="section-title" id="calendarTitle">Streak Calendar</h2>
+            <div class="calendar-nav">
+              <button class="calendar-nav-btn" id="calendarPrevBtn" type="button" aria-label="Previous month">‹</button>
+              <select id="calendarMonthSelect" class="calendar-month-select" aria-label="Select month"></select>
+              <button class="calendar-nav-btn" id="calendarNextBtn" type="button" aria-label="Next month">›</button>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
         </div>
+
+        <section class="dashboard-section">
+          <div class="section-header-row">
+            <h2 class="section-title">Achievements</h2>
+            <button class="btn btn-secondary btn-sm" id="viewAllAchievementsBtn">View All</button>
+          </div>
+          <div class="achievements-grid" id="achievementsGrid">
+          </div>
+        </section>
       </section>
 
     </div>
@@ -264,6 +315,7 @@
           </div>
         </div>
 
+
         <div class="profile-stats">
           <div class="profile-stat-box">
             <div class="profile-stat-val" id="profileTotalXp">0</div>
@@ -287,7 +339,25 @@
             </svg>
             <span>Reset All Progress</span>
           </button>
+          <button class="btn btn-secondary" id="exportDataBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M7.5 7.5 12 3m0 0 4.5 4.5M12 3v13.5" />
+            </svg>
+            <span>Export Data</span>
+          </button>
+          <button class="btn btn-secondary" id="importDataBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>Import Data</span>
+          </button>
         </div>
+      </div>
+      <div class="dashboard-section achievements-full-section" id="allAchievementsSection">
+        <h2 class="section-title">All Achievements</h2>
+        <div id="allAchievementsGrid"></div>
       </div>
     </div>
 

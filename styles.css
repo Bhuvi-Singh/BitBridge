@@ -1101,3 +1101,252 @@ dialog.modal::backdrop {
   border-color: var(--color-teal);
   background-color: #ffffff;
 }
+
+
+.stat-icon-wrapper.freeze-theme {
+  background-color: #dbeafe;
+  --icon-color: #2563eb;
+}
+
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .dashboard-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calendar-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.calendar-daylabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding-bottom: 0.35rem;
+}
+
+.calendar-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-app);
+  color: var(--text-muted);
+}
+
+.calendar-cell.empty {
+  background-color: transparent;
+}
+
+.calendar-cell.streak-day {
+  background-color: #fee2e2;
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.calendar-cell.today {
+  outline: 2px solid var(--color-teal);
+  outline-offset: -2px;
+}
+
+.level-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.xp-info-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.xp-info-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --icon-color: var(--text-muted);
+}
+
+.xp-info-btn .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.xp-info-btn:hover,
+.xp-info-btn:focus-visible {
+  --icon-color: var(--color-teal);
+}
+
+.xp-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background-color: var(--color-teal-dark);
+  color: #ffffff;
+  padding: 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: left;
+  box-shadow: var(--shadow-hover);
+  z-index: 20;
+}
+
+.xp-info-wrapper:hover .xp-tooltip,
+.xp-info-btn:focus-visible~.xp-tooltip {
+  display: block;
+}
+
+.xp-tooltip strong {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-sky-light);
+  margin-bottom: 0.3rem;
+}
+
+.xp-tooltip ul {
+  list-style: none;
+  margin: 0 0 0.75rem 0;
+  padding: 0;
+}
+
+.xp-tooltip li {
+  margin-bottom: 0.25rem;
+}
+
+.xp-tooltip p {
+  margin: 0;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.calendar-header .section-title {
+  margin-bottom: 0;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-nav-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-app);
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--color-teal-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.calendar-nav-btn:hover:not(:disabled) {
+  background-color: var(--bg-accent-peach);
+}
+
+.calendar-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.calendar-month-select {
+  padding: 0.4rem 0.6rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  background: var(--bg-card);
+  cursor: pointer;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.section-header-row .section-title {
+  margin-bottom: 0;
+}
+
+.achievement-xp {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-teal);
+  margin-top: 0.15rem;
+}
+
+.achievement-card.locked .achievement-xp {
+  color: var(--text-muted);
+}
+
+.achievement-category {
+  margin-bottom: 1.75rem;
+}
+
+.achievement-category:last-child {
+  margin-bottom: 0;
+}
+
+.achievement-category-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.achievements-full-section {
+  margin-top: 1.5rem;
+  max-width: 900px;
+}
+
+.achievement-badge-icon {
+  font-size: 1.4rem;
+}
