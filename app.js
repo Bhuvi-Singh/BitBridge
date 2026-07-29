@@ -23,96 +23,441 @@ const ICONS = {
 };
 
 // =========================================================================
-// LAYERED CHARACTER AVATAR SYSTEM (replaces single-emoji avatar)
+// LAYERED CHARACTER AVATAR SYSTEM (v2 — full customization + XP unlocks)
 // =========================================================================
+
+const NAME_BANK = [
+  'Byte Scholar', 'Pixel Pioneer', 'Logic Luminary', 'Recursive Ranger',
+  'Stack Smasher', 'Loop Legend', 'Array Ace', 'Binary Baron',
+  'Syntax Sage', 'Debug Dynamo', 'Code Comet', 'Null Ninja',
+  'Vector Voyager', 'Query Quartz', 'Cache Champion'
+];
+
+const SKIN_TONES = [
+  { id: 'skin-1', label: 'Porcelain', hex: '#FFE0C7', unlockXp: 0 },
+  { id: 'skin-2', label: 'Fair', hex: '#F4C9A0', unlockXp: 0 },
+  { id: 'skin-3', label: 'Light Tan', hex: '#E5B183', unlockXp: 0 },
+  { id: 'skin-4', label: 'Medium', hex: '#D9975C', unlockXp: 0 },
+  { id: 'skin-5', label: 'Tan', hex: '#C68642', unlockXp: 0 },
+  { id: 'skin-6', label: 'Golden', hex: '#B97A45', unlockXp: 0 },
+  { id: 'skin-7', label: 'Deep', hex: '#8D5524', unlockXp: 0 },
+  { id: 'skin-8', label: 'Espresso', hex: '#5C3A21', unlockXp: 0 },
+];
+
+const BODY_SHAPES = [
+  { id: 'body-slim', label: 'Slim', unlockXp: 0 },
+  { id: 'body-average', label: 'Average', unlockXp: 0 },
+  { id: 'body-broad', label: 'Broad', unlockXp: 0 },
+];
+
+const HAIR_STYLES = [
+  { id: 'hair-none', label: 'Bald', unlockXp: 0 },
+  { id: 'hair-short', label: 'Short Crop', unlockXp: 0 },
+  { id: 'hair-side-part', label: 'Side Part', unlockXp: 0 },
+  { id: 'hair-curly', label: 'Curly', unlockXp: 0 },
+  { id: 'hair-long', label: 'Long Wavy', unlockXp: 0 },
+  { id: 'hair-buzz', label: 'Buzz Cut', unlockXp: 0 },
+  { id: 'hair-bun', label: 'Top Bun', unlockXp: 0 },
+  { id: 'hair-afro', label: 'Afro', unlockXp: 0 },
+  { id: 'hair-mohawk', label: 'Mohawk', unlockXp: 0 },
+  { id: 'hair-pigtails', label: 'Pigtails', unlockXp: 0 },
+];
+
+const HAIR_COLORS = [
+  { id: 'haircolor-black', label: 'Black', hex: '#1C1C1C', unlockXp: 0 },
+  { id: 'haircolor-darkbrown', label: 'Dark Brown', hex: '#3B2417', unlockXp: 0 },
+  { id: 'haircolor-brown', label: 'Brown', hex: '#6F4E37', unlockXp: 0 },
+  { id: 'haircolor-auburn', label: 'Auburn', hex: '#8A3B24', unlockXp: 0 },
+  { id: 'haircolor-blonde', label: 'Blonde', hex: '#D9B26F', unlockXp: 0 },
+  { id: 'haircolor-red', label: 'Red', hex: '#B84C2E', unlockXp: 0 },
+  { id: 'haircolor-gray', label: 'Silver', hex: '#B5B8BD', unlockXp: 0 },
+  { id: 'haircolor-teal', label: 'Teal', hex: '#1C7E9C', unlockXp: 0 },
+  { id: 'haircolor-violet', label: 'Violet', hex: '#7C6FDB', unlockXp: 0 },
+];
+
+const FACIAL_HAIR = [
+  { id: 'facial-none', label: 'None', unlockXp: 0 },
+  { id: 'facial-stubble', label: 'Stubble', unlockXp: 0 },
+  { id: 'facial-mustache', label: 'Mustache', unlockXp: 0 },
+  { id: 'facial-goatee', label: 'Goatee', unlockXp: 0 },
+  { id: 'facial-full-beard', label: 'Full Beard', unlockXp: 0 },
+];
+
+const EYES = [
+  { id: 'eyes-round', label: 'Round', unlockXp: 0 },
+  { id: 'eyes-cute', label: 'Cute', unlockXp: 0 },
+  { id: 'eyes-serious', label: 'Serious', unlockXp: 0 },
+  { id: 'eyes-anime', label: 'Anime', unlockXp: 0 },
+  { id: 'eyes-dot', label: 'Dot Eyes', unlockXp: 0 },
+];
+
+const EYEBROWS = [
+  { id: 'brows-neutral', label: 'Neutral', unlockXp: 0 },
+  { id: 'brows-raised', label: 'Raised', unlockXp: 0 },
+  { id: 'brows-thick', label: 'Thick', unlockXp: 0 },
+  { id: 'brows-angled', label: 'Angled', unlockXp: 0 },
+];
+
+const MOUTHS = [
+  { id: 'mouth-smile', label: 'Smile', unlockXp: 0 },
+  { id: 'mouth-grin', label: 'Grin', unlockXp: 0 },
+  { id: 'mouth-neutral', label: 'Neutral', unlockXp: 0 },
+  { id: 'mouth-smirk', label: 'Smirk', unlockXp: 0 },
+  { id: 'mouth-open', label: 'Open', unlockXp: 0 },
+  { id: 'mouth-cool', label: 'Cool', unlockXp: 0 },
+];
+
+const NOSES = [
+  { id: 'nose-small', label: 'Small', unlockXp: 0 },
+  { id: 'nose-button', label: 'Button', unlockXp: 0 },
+  { id: 'nose-defined', label: 'Defined', unlockXp: 0 },
+];
+
+const TOPS = [
+  { id: 'top-teal-tee', label: 'Teal Tee', color: '#1C7E9C', unlockXp: 0 },
+  { id: 'top-orange-zip', label: 'Orange Zip', color: '#FEA983', unlockXp: 0 },
+  { id: 'top-mono-black', label: 'Mono Black', color: '#2d3748', unlockXp: 0 },
+  { id: 'top-navy-hoodie', label: 'Navy Hoodie', color: '#155C73', unlockXp: 50 },
+  { id: 'top-violet-vest', label: 'Violet Vest', color: '#7C6FDB', unlockXp: 50 },
+  { id: 'top-crimson-jacket', label: 'Crimson Jacket', color: '#B83B3B', unlockXp: 100 },
+  { id: 'top-gold-blazer', label: 'Gold Blazer', color: '#C9972B', unlockXp: 150 },
+  { id: 'top-forest-flannel', label: 'Forest Flannel', color: '#2F5233', unlockXp: 200 },
+  { id: 'top-lab-coat', label: 'Lab Coat', color: '#F1F1F1', unlockXp: 300 },
+  { id: 'top-graduation-robe', label: 'Grad Robe', color: '#1a1a2e', unlockXp: 500 },
+];
+
+const GLASSES = [
+  { id: 'glasses-none', label: 'None', unlockXp: 0 },
+  { id: 'glasses-round', label: 'Round', unlockXp: 0 },
+  { id: 'glasses-square', label: 'Square', unlockXp: 0 },
+  { id: 'glasses-shades', label: 'Shades', unlockXp: 0 },
+  { id: 'glasses-cat-eye', label: 'Cat Eye', unlockXp: 0 },
+];
+
+const HATS = [
+  { id: 'hat-none', label: 'None', unlockXp: 0 },
+  { id: 'hat-cap', label: 'Cap', unlockXp: 75 },
+  { id: 'hat-beanie', label: 'Beanie', unlockXp: 75 },
+  { id: 'hat-headband', label: 'Headband', unlockXp: 125 },
+  { id: 'hat-grad-cap', label: 'Grad Cap', unlockXp: 400 },
+];
+
+const JEWELRY = [
+  { id: 'jewelry-none', label: 'None', unlockXp: 0 },
+  { id: 'jewelry-stud', label: 'Ear Studs', unlockXp: 60 },
+  { id: 'jewelry-chain', label: 'Chain', unlockXp: 175 },
+];
+
+const PROPS = [
+  { id: 'prop-none', label: 'None', unlockXp: 0 },
+  { id: 'prop-coffee', label: 'Coffee Cup', unlockXp: 40 },
+  { id: 'prop-backpack', label: 'Backpack', unlockXp: 90 },
+  { id: 'prop-cat', label: 'Pet Cat', unlockXp: 250 },
+  { id: 'prop-laptop', label: 'Laptop', unlockXp: 350 },
+  { id: 'prop-trophy', label: 'Trophy', unlockXp: 600 },
+];
+
 const AVATAR_PARTS = {
-  body: [
-    { id: 'body-fair', label: 'Fair', skin: '#F4C9A0' },
-    { id: 'body-medium', label: 'Medium', skin: '#D9975C' },
-    { id: 'body-tan', label: 'Tan', skin: '#B97A45' },
-    { id: 'body-deep', label: 'Deep', skin: '#7A4A2B' },
-    { id: 'body-cool', label: 'Cool', skin: '#8B6F5C' },
-  ],
-  outfit: [
-    { id: 'outfit-teal', label: 'Teal Tee', color: '#1C7E9C' },
-    { id: 'outfit-orange', label: 'Orange Zip', color: '#FEA983' },
-    { id: 'outfit-navy', label: 'Navy Hoodie', color: '#155C73' },
-    { id: 'outfit-purple', label: 'Violet Vest', color: '#7C6FDB' },
-    { id: 'outfit-mono', label: 'Mono Black', color: '#2d3748' },
-  ],
-  hair: [
-    { id: 'hair-none', label: 'Bald / None', color: 'transparent' },
-    { id: 'hair-short', label: 'Short', color: '#3B2417' },
-    { id: 'hair-curly', label: 'Curly', color: '#1C1C1C' },
-    { id: 'hair-long', label: 'Long', color: '#8A5A2B' },
-    { id: 'hair-buzz', label: 'Buzz', color: '#5C4033' },
-  ],
-  accessory: [
-    { id: 'acc-none', label: 'None' },
-    { id: 'acc-glasses', label: 'Glasses' },
-    { id: 'acc-shades', label: 'Shades' },
-    { id: 'acc-cap', label: 'Cap' },
-    { id: 'acc-headband', label: 'Headband' },
-  ]
+  skinTone: SKIN_TONES,
+  bodyShape: BODY_SHAPES,
+  hairStyle: HAIR_STYLES,
+  hairColor: HAIR_COLORS,
+  facialHair: FACIAL_HAIR,
+  eyes: EYES,
+  eyebrows: EYEBROWS,
+  mouth: MOUTHS,
+  nose: NOSES,
+  top: TOPS,
+  glasses: GLASSES,
+  hat: HATS,
+  jewelry: JEWELRY,
+  prop: PROPS
 };
 
+const CHARACTER_TABS = [
+  {
+    id: 'skin', label: 'SKIN', groups: [
+      { layer: 'skinTone', label: 'Skin Tone' },
+      { layer: 'bodyShape', label: 'Body Shape' }
+    ]
+  },
+  {
+    id: 'hair', label: 'HAIR', groups: [
+      { layer: 'hairStyle', label: 'Hairstyle' },
+      { layer: 'hairColor', label: 'Hair Color' },
+      { layer: 'facialHair', label: 'Facial Hair' }
+    ]
+  },
+  {
+    id: 'face', label: 'FACE', groups: [
+      { layer: 'eyes', label: 'Eyes' },
+      { layer: 'eyebrows', label: 'Eyebrows' },
+      { layer: 'mouth', label: 'Mouth' },
+      { layer: 'nose', label: 'Nose' }
+    ]
+  },
+  { id: 'top', label: 'TOP', groups: [{ layer: 'top', label: 'Tops' }] },
+  { id: 'glasses', label: 'GLASSES', groups: [{ layer: 'glasses', label: 'Glasses' }] },
+  { id: 'hat', label: 'HATS', groups: [{ layer: 'hat', label: 'Hats' }] },
+  { id: 'jewelry', label: 'JEWELRY', groups: [{ layer: 'jewelry', label: 'Jewelry' }] },
+  { id: 'prop', label: 'PROPS', groups: [{ layer: 'prop', label: 'Props' }] },
+];
+
 const DEFAULT_CHARACTER = {
-  body: 'body-medium',
-  outfit: 'outfit-teal',
-  hair: 'hair-short',
-  accessory: 'acc-none'
+  skinTone: 'skin-4',
+  bodyShape: 'body-average',
+  hairStyle: 'hair-short',
+  hairColor: 'haircolor-darkbrown',
+  facialHair: 'facial-none',
+  eyes: 'eyes-round',
+  eyebrows: 'brows-neutral',
+  mouth: 'mouth-smile',
+  nose: 'nose-button',
+  top: 'top-teal-tee',
+  glasses: 'glasses-none',
+  hat: 'hat-none',
+  jewelry: 'jewelry-none',
+  prop: 'prop-none'
 };
 
 function findAvatarPart(layer, id) {
-  return AVATAR_PARTS[layer].find(p => p.id === id) || AVATAR_PARTS[layer][0];
+  const list = AVATAR_PARTS[layer];
+  if (!list) return null;
+  return list.find(p => p.id === id) || list[0];
+}
+
+function renderEyes(id) {
+  return [[43, 33], [57, 33]].map(([cx, cy]) => {
+    switch (id) {
+      case 'eyes-cute':
+        return `<circle cx="${cx}" cy="${cy}" r="2.8" fill="#2d3748"/><circle cx="${cx + 1}" cy="${cy - 1}" r="0.9" fill="#fff"/>`;
+      case 'eyes-serious':
+        return `<line x1="${cx - 2.5}" y1="${cy}" x2="${cx + 2.5}" y2="${cy}" stroke="#2d3748" stroke-width="1.8" stroke-linecap="round"/>`;
+      case 'eyes-anime':
+        return `<ellipse cx="${cx}" cy="${cy}" rx="2.6" ry="3.4" fill="#2d3748"/><ellipse cx="${cx}" cy="${cy}" rx="1.1" ry="1.6" fill="#5b8cff"/><circle cx="${cx + 0.8}" cy="${cy - 1.3}" r="0.7" fill="#fff"/>`;
+      case 'eyes-dot':
+        return `<circle cx="${cx}" cy="${cy}" r="1.1" fill="#2d3748"/>`;
+      case 'eyes-round':
+      default:
+        return `<circle cx="${cx}" cy="${cy}" r="1.9" fill="#2d3748"/>`;
+    }
+  }).join('');
+}
+
+function renderEyebrows(id) {
+  switch (id) {
+    case 'brows-raised':
+      return `<path d="M39 27 Q43.5 24 48 27" stroke="#2d3748" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M52 27 Q56.5 24 61 27" stroke="#2d3748" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+    case 'brows-thick':
+      return `<rect x="39" y="27.5" width="9" height="2.2" rx="1.1" fill="#2d3748"/><rect x="52" y="27.5" width="9" height="2.2" rx="1.1" fill="#2d3748"/>`;
+    case 'brows-angled':
+      return `<line x1="39" y1="26" x2="48" y2="29" stroke="#2d3748" stroke-width="1.6" stroke-linecap="round"/><line x1="61" y1="26" x2="52" y2="29" stroke="#2d3748" stroke-width="1.6" stroke-linecap="round"/>`;
+    case 'brows-neutral':
+    default:
+      return `<line x1="39" y1="28" x2="48" y2="28" stroke="#2d3748" stroke-width="1.4" stroke-linecap="round"/><line x1="52" y1="28" x2="61" y2="28" stroke="#2d3748" stroke-width="1.4" stroke-linecap="round"/>`;
+  }
+}
+
+function renderNose(id) {
+  switch (id) {
+    case 'nose-button':
+      return `<circle cx="50" cy="37" r="1.3" fill="rgba(0,0,0,0.18)"/>`;
+    case 'nose-defined':
+      return `<path d="M49 34 L48 38 Q50 39 52 38" stroke="rgba(0,0,0,0.25)" stroke-width="1" fill="none" stroke-linecap="round"/>`;
+    case 'nose-small':
+    default:
+      return `<line x1="50" y1="35" x2="50" y2="38" stroke="rgba(0,0,0,0.2)" stroke-width="1.2" stroke-linecap="round"/>`;
+  }
+}
+
+function renderMouth(id) {
+  switch (id) {
+    case 'mouth-grin':
+      return `<path d="M44 42 Q50 47 56 42 Q50 45 44 42Z" fill="#fff" stroke="#b8543f" stroke-width="1"/>`;
+    case 'mouth-neutral':
+      return `<line x1="45" y1="43" x2="55" y2="43" stroke="#b8543f" stroke-width="1.6" stroke-linecap="round"/>`;
+    case 'mouth-smirk':
+      return `<path d="M45 43 Q50 44 55 41" stroke="#b8543f" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+    case 'mouth-open':
+      return `<ellipse cx="50" cy="43.5" rx="3.4" ry="2.4" fill="#7a2e2e"/>`;
+    case 'mouth-cool':
+      return `<path d="M44 42.5 Q50 44.5 56 42.5" stroke="#b8543f" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+    case 'mouth-smile':
+    default:
+      return `<path d="M44 42 Q50 46.5 56 42" stroke="#b8543f" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  }
+}
+
+function renderFacialHair(id, hairHex) {
+  switch (id) {
+    case 'facial-stubble':
+      return `<path d="M33 40 Q50 52 67 40 Q67 48 50 50 Q33 48 33 40Z" fill="${hairHex}" opacity="0.18"/>`;
+    case 'facial-mustache':
+      return `<path d="M44 40.5 Q50 39 56 40.5 Q50 41.5 44 40.5Z" fill="${hairHex}"/>`;
+    case 'facial-goatee':
+      return `<path d="M46 44 Q50 51 54 44 Q50 46.5 46 44Z" fill="${hairHex}"/>`;
+    case 'facial-full-beard':
+      return `<path d="M32 40 Q33 55 50 56 Q67 55 68 40 Q67 48 50 49 Q33 48 32 40Z" fill="${hairHex}"/>`;
+    case 'facial-none':
+    default:
+      return '';
+  }
+}
+
+function renderHairLayers(id, hairHex) {
+  const capDefault = `<ellipse cx="50" cy="29" rx="19" ry="20" fill="${hairHex}"/>`;
+  switch (id) {
+    case 'hair-none':
+      return { back: '', cap: '', detail: '' };
+    case 'hair-buzz':
+      return { back: '', cap: `<ellipse cx="50" cy="29" rx="18.5" ry="19.5" fill="${hairHex}" opacity="0.55"/>`, detail: '' };
+    case 'hair-afro':
+      return { back: '', cap: `<circle cx="50" cy="27" r="23" fill="${hairHex}"/>`, detail: '' };
+    case 'hair-curly':
+      return {
+        back: '',
+        cap: capDefault,
+        detail: `<g fill="${hairHex}"><circle cx="30" cy="20" r="5.5"/><circle cx="40" cy="11" r="6"/><circle cx="50" cy="9" r="6.5"/><circle cx="60" cy="11" r="6"/><circle cx="70" cy="20" r="5.5"/></g>`
+      };
+    case 'hair-long':
+      return {
+        back: `<path d="M31 26 Q28 55 34 78 L41 78 Q36 52 38 30 Z" fill="${hairHex}"/><path d="M69 26 Q72 55 66 78 L59 78 Q64 52 62 30 Z" fill="${hairHex}"/>`,
+        cap: capDefault,
+        detail: ''
+      };
+    case 'hair-bun':
+      return { back: '', cap: capDefault, detail: `<circle cx="50" cy="8" r="5.5" fill="${hairHex}"/>` };
+    case 'hair-mohawk':
+      return { back: '', cap: '', detail: `<path d="M45 6 L55 6 L53 24 L47 24 Z" fill="${hairHex}"/>` };
+    case 'hair-pigtails':
+      return {
+        back: `<circle cx="27" cy="40" r="6.5" fill="${hairHex}"/><circle cx="73" cy="40" r="6.5" fill="${hairHex}"/>`,
+        cap: capDefault,
+        detail: ''
+      };
+    case 'hair-side-part':
+      return { back: '', cap: capDefault, detail: `<path d="M40 12 Q44 18 42 24" stroke="${hairHex}" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.6"/>` };
+    case 'hair-short':
+    default:
+      return { back: '', cap: capDefault, detail: '' };
+  }
+}
+
+function renderGlasses(id) {
+  switch (id) {
+    case 'glasses-round':
+      return `<g stroke="#2d3748" stroke-width="1.6" fill="none"><circle cx="43" cy="33" r="5.5"/><circle cx="57" cy="33" r="5.5"/><line x1="48.5" y1="33" x2="51.5" y2="33"/></g>`;
+    case 'glasses-square':
+      return `<g stroke="#2d3748" stroke-width="1.6" fill="none"><rect x="37.5" y="29" width="11" height="8" rx="1.5"/><rect x="51.5" y="29" width="11" height="8" rx="1.5"/><line x1="48.5" y1="33" x2="51.5" y2="33"/></g>`;
+    case 'glasses-shades':
+      return `<g fill="#1a1a1a"><rect x="36.5" y="29" width="13" height="8" rx="3"/><rect x="50.5" y="29" width="13" height="8" rx="3"/><rect x="49" y="31.5" width="2" height="2"/></g>`;
+    case 'glasses-cat-eye':
+      return `<g stroke-linejoin="round"><g stroke="#2d3748" stroke-width="1.6" fill="none">
+        <path d="M36.5 34 Q36 28.5 43 28.5 Q49 28.5 48.5 34 Q48 37.5 43 37.5 Q37 37.5 36.5 34 Z"/>
+        <path d="M63.5 34 Q64 28.5 57 28.5 Q51 28.5 51.5 34 Q52 37.5 57 37.5 Q63 37.5 63.5 34 Z"/>
+        <line x1="48.5" y1="33" x2="51.5" y2="33"/>
+      </g>
+      <path d="M36.5 30 L31.5 25.5 L37.5 28 Z" fill="#2d3748"/>
+      <path d="M63.5 30 L68.5 25.5 L62.5 28 Z" fill="#2d3748"/></g>`;
+    case 'glasses-none':
+    default:
+      return '';
+  }
+}
+
+function renderTop(id) {
+  const details = {
+    'top-navy-hoodie': `<path d="M38 50 Q50 58 62 50 L62 60 Q50 66 38 60 Z" fill="#0e3d4d"/>`,
+    'top-orange-zip': `<line x1="50" y1="48" x2="50" y2="80" stroke="#c96b3f" stroke-width="2"/>`,
+    'top-violet-vest': `<path d="M40 48 L50 62 L60 48" fill="none" stroke="#5b4fb8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    'top-crimson-jacket': `<line x1="50" y1="48" x2="50" y2="80" stroke="#7a1f1f" stroke-width="2"/><path d="M38 52 L44 58 M62 52 L56 58" stroke="#7a1f1f" stroke-width="2" stroke-linecap="round"/>`,
+    'top-gold-blazer': `<path d="M42 50 L50 60 L58 50" fill="none" stroke="#8a6614" stroke-width="2"/>`,
+    'top-forest-flannel': `<path d="M38 52 L62 52 M40 58 L60 58 M42 64 L58 64" stroke="#1f3a20" stroke-width="1.4"/>`,
+    'top-lab-coat': `<line x1="50" y1="48" x2="50" y2="80" stroke="#c7c7c7" stroke-width="2"/><rect x="44" y="56" width="4" height="4" fill="#c7c7c7"/>`,
+    'top-graduation-robe': `<path d="M35 50 Q50 62 65 50 L65 82 Q50 90 35 82 Z" fill="#0f0f1e"/><rect x="46" y="46" width="8" height="10" fill="#C9972B"/>`
+  };
+  return details[id] || '';
+}
+
+function renderHat(id, accentColor) {
+  switch (id) {
+    case 'hat-cap':
+      return `<path d="M29 25 Q29 11 50 11 Q71 11 71 25 L71 27 L29 27 Z" fill="${accentColor}"/><ellipse cx="60" cy="27" rx="14" ry="4" fill="${accentColor}"/>`;
+    case 'hat-beanie':
+      return `<path d="M29 27 Q27 9 50 9 Q73 9 71 27 Z" fill="${accentColor}"/><rect x="27" y="24" width="46" height="5" rx="2" fill="${accentColor}" opacity="0.7"/>`;
+    case 'hat-headband':
+      return `<rect x="29" y="22" width="42" height="5" fill="${accentColor}"/>`;
+    case 'hat-grad-cap':
+      return `<rect x="32" y="14" width="36" height="6" fill="#0f0f1e"/><path d="M20 12 L50 4 L80 12 L50 20 Z" fill="#0f0f1e"/><circle cx="80" cy="12" r="1.5" fill="#C9972B"/>`;
+    case 'hat-none':
+    default:
+      return '';
+  }
+}
+
+function renderJewelry(id) {
+  switch (id) {
+    case 'jewelry-stud':
+      return `<circle cx="31" cy="37" r="1.3" fill="#facc15"/><circle cx="69" cy="37" r="1.3" fill="#facc15"/>`;
+    case 'jewelry-chain':
+      return `<path d="M42 62 Q50 68 58 62" stroke="#facc15" stroke-width="1.6" fill="none"/><circle cx="50" cy="66" r="2" fill="#facc15"/>`;
+    case 'jewelry-none':
+    default:
+      return '';
+  }
+}
+
+function renderProp(id) {
+  switch (id) {
+    case 'prop-cat':
+      return `<g transform="translate(74,78)"><ellipse cx="0" cy="8" rx="7" ry="5" fill="#8a8a8a"/><circle cx="6" cy="3" r="3.5" fill="#8a8a8a"/><path d="M4 0 L5 -3 L7 0Z M8 0 L9 -3 L11 0Z" fill="#8a8a8a"/></g>`;
+    case 'prop-backpack':
+      return `<g transform="translate(70,55)"><rect x="0" y="0" width="14" height="18" rx="3" fill="#6b4a2b"/><rect x="4" y="3" width="6" height="4" rx="1" fill="#8a6640"/></g>`;
+    case 'prop-laptop':
+      return `<g transform="translate(68,78)"><rect x="0" y="0" width="16" height="10" rx="1" fill="#334155"/><rect x="1.5" y="1.5" width="13" height="7" fill="#7dd3fc"/></g>`;
+    case 'prop-coffee':
+      return `<g transform="translate(76,80)"><rect x="0" y="2" width="8" height="9" rx="1.5" fill="#fff" stroke="#c7c7c7"/><path d="M8 4 Q12 4 12 7 Q12 10 8 9" fill="none" stroke="#c7c7c7"/></g>`;
+    case 'prop-trophy':
+      return `<g transform="translate(76,76)"><path d="M2 0 H10 V5 Q10 10 6 10 Q2 10 2 5Z" fill="#f4c430"/><rect x="5" y="10" width="2" height="3" fill="#f4c430"/><rect x="3" y="13" width="6" height="2" fill="#c9972b"/></g>`;
+    case 'prop-none':
+    default:
+      return '';
+  }
 }
 
 function buildAvatarSVG(character) {
-  const body = findAvatarPart('body', character.body);
-  const outfit = findAvatarPart('outfit', character.outfit);
-  const hair = findAvatarPart('hair', character.hair);
-  const accessory = character.accessory;
+  const skin = findAvatarPart('skinTone', character.skinTone);
+  const bodyShape = findAvatarPart('bodyShape', character.bodyShape);
+  const top = findAvatarPart('top', character.top);
+  const hairColor = findAvatarPart('hairColor', character.hairColor);
+  const hair = renderHairLayers(character.hairStyle, hairColor.hex);
+  const shoulderRx = bodyShape.id === 'body-slim' ? 24 : bodyShape.id === 'body-broad' ? 32 : 28;
 
   let svg = `<svg class="avatar-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">`;
   svg += `<rect width="100" height="100" fill="#FDE3C8"/>`;
-  svg += `<ellipse cx="50" cy="66" rx="28" ry="22" fill="${outfit.color}"/>`;
-
-  if (character.outfit === 'outfit-navy') {
-    svg += `<path d="M38 50 Q50 58 62 50 L62 60 Q50 66 38 60 Z" fill="#0e3d4d"/>`;
-  } else if (character.outfit === 'outfit-orange') {
-    svg += `<line x1="50" y1="48" x2="50" y2="80" stroke="#c96b3f" stroke-width="2"/>`;
-  } else if (character.outfit === 'outfit-purple') {
-    svg += `<path d="M40 48 L50 62 L60 48" fill="none" stroke="#5b4fb8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
-  }
-
-  svg += `<rect x="44" y="42" width="12" height="12" fill="${body.skin}"/>`;
-  svg += `<circle cx="50" cy="36" r="19" fill="${body.skin}"/>`;
-  svg += `<circle cx="31" cy="36" r="3.2" fill="${body.skin}"/><circle cx="69" cy="36" r="3.2" fill="${body.skin}"/>`;
-  svg += `<circle cx="43" cy="35" r="1.8" fill="#2d3748"/><circle cx="57" cy="35" r="1.8" fill="#2d3748"/>`;
-  svg += `<path d="M44 43 Q50 47 56 43" stroke="#2d3748" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
-
-  if (character.hair === 'hair-short') {
-    svg += `<path d="M29 34 Q26 14 50 14 Q74 14 71 34 Q71 20 50 20 Q29 20 29 34Z" fill="${hair.color}"/>`;
-  } else if (character.hair === 'hair-curly') {
-    svg += `<g fill="${hair.color}"><circle cx="33" cy="20" r="6"/><circle cx="42" cy="14" r="7"/><circle cx="52" cy="12" r="7.5"/><circle cx="62" cy="15" r="7"/><circle cx="69" cy="22" r="6"/></g>`;
-  } else if (character.hair === 'hair-long') {
-    svg += `<path d="M29 34 Q26 14 50 14 Q74 14 71 34 L71 58 Q66 60 64 54 L64 32 Q64 20 50 20 Q36 20 36 32 L36 54 Q34 60 29 58 Z" fill="${hair.color}"/>`;
-  } else if (character.hair === 'hair-buzz') {
-    svg += `<path d="M30 30 Q28 16 50 16 Q72 16 70 30 Q71 24 50 24 Q29 24 30 30Z" fill="${hair.color}" opacity="0.85"/>`;
-  }
-
-  if (accessory === 'acc-glasses') {
-    svg += `<g stroke="#2d3748" stroke-width="2" fill="none"><circle cx="43" cy="35" r="6.5"/><circle cx="57" cy="35" r="6.5"/><line x1="49.5" y1="35" x2="50.5" y2="35"/></g>`;
-  } else if (accessory === 'acc-shades') {
-    svg += `<g fill="#1a1a1a"><rect x="36.5" y="31" width="13" height="8" rx="3"/><rect x="50.5" y="31" width="13" height="8" rx="3"/><rect x="49" y="33.5" width="2" height="2"/></g>`;
-  } else if (accessory === 'acc-cap') {
-    svg += `<path d="M29 26 Q29 12 50 12 Q71 12 71 26 L71 28 L29 28 Z" fill="${outfit.color}"/><ellipse cx="60" cy="28" rx="14" ry="4" fill="${outfit.color}"/>`;
-  } else if (accessory === 'acc-headband') {
-    svg += `<rect x="29" y="24" width="42" height="5" fill="${outfit.color}"/>`;
-  }
-
+  svg += hair.back;
+  svg += `<ellipse cx="50" cy="75" rx="${shoulderRx}" ry="17" fill="${top.color}"/>`;
+  svg += renderTop(character.top);
+  svg += `<rect x="43" y="48" width="14" height="13" fill="${skin.hex}"/>`;
+  svg += hair.cap;
+  svg += `<ellipse cx="50" cy="37" rx="17" ry="18" fill="${skin.hex}"/>`;
+  svg += `<ellipse cx="31.5" cy="38" rx="2.6" ry="4.2" fill="${skin.hex}"/><ellipse cx="68.5" cy="38" rx="2.6" ry="4.2" fill="${skin.hex}"/>`;
+  svg += renderFacialHair(character.facialHair, hairColor.hex);
+  svg += renderEyebrows(character.eyebrows);
+  svg += renderEyes(character.eyes);
+  svg += renderNose(character.nose);
+  svg += renderMouth(character.mouth);
+  svg += hair.detail;
+  svg += renderGlasses(character.glasses);
+  svg += renderHat(character.hat, top.color);
+  svg += renderJewelry(character.jewelry);
+  svg += renderProp(character.prop);
   svg += `</svg>`;
   return svg;
+}
+
+function buildAvatarPartPreview(layer, part, baseCharacter) {
+  return buildAvatarSVG({ ...baseCharacter, [layer]: part.id });
 }
 
 function renderAvatarDisplays(character) {
@@ -121,28 +466,73 @@ function renderAvatarDisplays(character) {
     .forEach(el => { el.innerHTML = svgMarkup; });
 }
 
-let activeCustomizeTab = 'body';
+function migrateCharacter(oldChar) {
+  if (!oldChar) return { ...DEFAULT_CHARACTER };
+  if (oldChar.skinTone) return { ...DEFAULT_CHARACTER, ...oldChar }; // already new schema
+
+  // Legacy schema migration (body / outfit / hair / accessory)
+  const skinMap = { 'body-fair': 'skin-2', 'body-medium': 'skin-4', 'body-tan': 'skin-5', 'body-deep': 'skin-7', 'body-cool': 'skin-6' };
+  const topMap = { 'outfit-teal': 'top-teal-tee', 'outfit-orange': 'top-orange-zip', 'outfit-navy': 'top-navy-hoodie', 'outfit-purple': 'top-violet-vest', 'outfit-mono': 'top-mono-black' };
+  const migrated = { ...DEFAULT_CHARACTER };
+  if (oldChar.body && skinMap[oldChar.body]) migrated.skinTone = skinMap[oldChar.body];
+  if (oldChar.outfit && topMap[oldChar.outfit]) migrated.top = topMap[oldChar.outfit];
+  if (oldChar.hair && HAIR_STYLES.some(h => h.id === oldChar.hair)) migrated.hairStyle = oldChar.hair;
+  if (oldChar.accessory === 'acc-glasses') migrated.glasses = 'glasses-round';
+  if (oldChar.accessory === 'acc-shades') migrated.glasses = 'glasses-shades';
+  if (oldChar.accessory === 'acc-cap') migrated.hat = 'hat-cap';
+  if (oldChar.accessory === 'acc-headband') migrated.hat = 'hat-headband';
+  return migrated;
+}
+
+function isPartUnlocked(part) {
+  return !part.unlockXp || part.unlockXp <= progress.xp;
+}
+
+let activeCustomizeTab = 'skin';
+let avatarLockNotice = '';
 
 function renderAvatarItemGrid() {
-  const grid = document.getElementById('avatarItemGrid');
-  if (!grid) return;
-  const layer = activeCustomizeTab;
-  const selected = progress.character[layer];
+  const container = document.getElementById('avatarItemGrid');
+  if (!container) return;
+  const tabConfig = CHARACTER_TABS.find(t => t.id === activeCustomizeTab) || CHARACTER_TABS[0];
 
-  grid.innerHTML = AVATAR_PARTS[layer].map(part => {
-    const previewChar = { ...progress.character, [layer]: part.id };
-    const isActive = part.id === selected;
-    return `
-      <button type="button" class="avatar-option ${isActive ? 'active' : ''}" data-layer="${layer}" data-part-id="${part.id}">
-        ${buildAvatarSVG(previewChar)}
-        <span class="avatar-option-label">${part.label}</span>
-      </button>
-    `;
+  const groupsHtml = tabConfig.groups.map(group => {
+    const layer = group.layer;
+    const selected = progress.character[layer];
+    const itemsHtml = AVATAR_PARTS[layer].map(part => {
+      const unlocked = isPartUnlocked(part);
+      const isActive = part.id === selected;
+      const previewInner = part.hex
+        ? `<span class="avatar-swatch" style="background:${part.hex}"></span>`
+        : buildAvatarPartPreview(layer, part, progress.character);
+      const previewHtml = `<span class="avatar-option-preview">${previewInner}</span>`;
+      return `
+        <button type="button"
+          class="avatar-option ${isActive ? 'active' : ''} ${unlocked ? '' : 'locked'}"
+          data-layer="${layer}" data-part-id="${part.id}">
+          ${!unlocked ? `<span class="avatar-lock-badge">🔒 ${part.unlockXp} XP</span>` : ''}
+          ${previewHtml}
+          <span class="avatar-option-label">${part.label}</span>
+        </button>
+      `;
+    }).join('');
+    return `<div class="avatar-group"><div class="avatar-group-title">${group.label}</div><div class="avatar-group-grid">${itemsHtml}</div></div>`;
   }).join('');
 
-  grid.querySelectorAll('.avatar-option').forEach(btn => {
+  container.innerHTML = groupsHtml + (avatarLockNotice ? `<div class="avatar-lock-notice">${avatarLockNotice}</div>` : '');
+
+  container.querySelectorAll('.avatar-option').forEach(btn => {
     btn.addEventListener('click', () => {
-      progress.character[btn.dataset.layer] = btn.dataset.partId;
+      const layer = btn.dataset.layer;
+      const partId = btn.dataset.partId;
+      const part = findAvatarPart(layer, partId);
+      if (!isPartUnlocked(part)) {
+        avatarLockNotice = `🔒 "${part.label}" unlocks at ${part.unlockXp} XP — you have ${progress.xp} XP.`;
+        renderAvatarItemGrid();
+        return;
+      }
+      avatarLockNotice = '';
+      progress.character[layer] = partId;
       saveProgress(progress);
       renderAvatarDisplays(progress.character);
       renderAvatarItemGrid();
@@ -151,14 +541,15 @@ function renderAvatarItemGrid() {
 }
 
 const STORAGE_KEY = 'codepath_dashboard_progress';
+
 const DEFAULT_PROGRESS = {
   userName: 'Byte Scholar',
-  avatar: '👩‍💻',
-  xp: 165,
-  streak: 4,
-  streakFreezes: 1,
-  completedLessons: ['apcsa-1-1', 'apcsa-1-2', 'apcsa-1-3', 'apcsa-1-4', 'apcsa-2-1'],
-  currentLessonId: 'apcsa-2-2',
+  character: { ...DEFAULT_CHARACTER },
+  xp: 0,
+  streak: 0,
+  streakFreezes: 0,
+  completedLessons: [],
+  currentLessonId: null,
   achievementFlags: {},
   unlockedAchievements: []
 };
@@ -251,10 +642,12 @@ let currentTrack = 'ap-csa';
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    const merged = raw ? { ...DEFAULT_PROGRESS, ...JSON.parse(raw) } : { ...DEFAULT_PROGRESS };
+    const base = { ...DEFAULT_PROGRESS, character: { ...DEFAULT_CHARACTER }, completedLessons: [...DEFAULT_PROGRESS.completedLessons] };
+    const merged = raw ? { ...base, ...JSON.parse(raw) } : base;
     if (merged.streakFreezes === undefined) merged.streakFreezes = 0;
     if (merged.achievementFlags === undefined) merged.achievementFlags = {};
     if (merged.unlockedAchievements === undefined) merged.unlockedAchievements = [];
+    merged.character = migrateCharacter(merged.character); // migrate from old avatar schema, if needed
     return merged;
   } catch (e) {
     return { ...DEFAULT_PROGRESS };
@@ -287,22 +680,33 @@ function saveProgress(p) {
 
 function exportProgressData() {
   const payload = {
-    v: 1,
+    v: 2,
+    userName: progress.userName,
+    character: progress.character,
     xp: progress.xp,
-    completedLessons: progress.completedLessons
+    streak: progress.streak,
+    streakFreezes: progress.streakFreezes,
+    completedLessons: progress.completedLessons,
+    currentLessonId: progress.currentLessonId,
+    achievementFlags: progress.achievementFlags,
+    unlockedAchievements: progress.unlockedAchievements
   };
   const json = JSON.stringify(payload);
-  return `CODEPATH1:${btoa(unescape(encodeURIComponent(json)))}`;
+  return `CODEPATH2:${btoa(unescape(encodeURIComponent(json)))}`;
 }
 
 function importProgressData(exportString) {
-  const prefix = 'CODEPATH1:';
-  if (!exportString.startsWith(prefix)) {
+  const prefixV2 = 'CODEPATH2:';
+  const prefixV1 = 'CODEPATH1:'; // legacy support
+
+  let data;
+  if (exportString.startsWith(prefixV2)) {
+    data = JSON.parse(decodeURIComponent(escape(atob(exportString.slice(prefixV2.length).trim()))));
+  } else if (exportString.startsWith(prefixV1)) {
+    data = JSON.parse(decodeURIComponent(escape(atob(exportString.slice(prefixV1.length).trim()))));
+  } else {
     throw new Error('Not a valid CodePath export code.');
   }
-
-  const json = decodeURIComponent(escape(atob(exportString.slice(prefix.length).trim())));
-  const data = JSON.parse(json);
 
   if (typeof data.xp !== 'number' || !Array.isArray(data.completedLessons)) {
     throw new Error('Export code is malformed.');
@@ -310,6 +714,14 @@ function importProgressData(exportString) {
 
   progress.xp = data.xp;
   progress.completedLessons = data.completedLessons;
+  if (typeof data.userName === 'string') progress.userName = data.userName;
+  if (data.character) progress.character = { ...DEFAULT_CHARACTER, ...data.character };
+  if (typeof data.streak === 'number') progress.streak = data.streak;
+  if (typeof data.streakFreezes === 'number') progress.streakFreezes = data.streakFreezes;
+  if (typeof data.currentLessonId === 'string' || data.currentLessonId === null) progress.currentLessonId = data.currentLessonId;
+  if (data.achievementFlags) progress.achievementFlags = data.achievementFlags;
+  if (Array.isArray(data.unlockedAchievements)) progress.unlockedAchievements = data.unlockedAchievements;
+
   saveProgress(progress);
   render();
   renderCourseMap();
@@ -317,7 +729,11 @@ function importProgressData(exportString) {
 
 function resetProgress() {
   localStorage.removeItem(STORAGE_KEY);
-  progress = { ...DEFAULT_PROGRESS };
+  progress = {
+    ...DEFAULT_PROGRESS,
+    character: { ...DEFAULT_CHARACTER },
+    completedLessons: []
+  };
   saveProgress(progress);
 }
 
@@ -383,7 +799,7 @@ function render() {
   document.getElementById('sidebarUserName').textContent = progress.userName;
   document.getElementById('profileUserName').textContent = progress.userName;
 
-  document.getElementById('sidebarUserLevel').textContent = `Level ${level} · AP CS A`;
+  document.getElementById('sidebarUserLevel').textContent = `Level ${level} · ${progress.xp.toLocaleString()} XP`;
   document.getElementById('profileUserLevel').textContent = `Level ${level} · AP CS A Track`;
 
   document.getElementById('totalXpValue').textContent = progress.xp.toLocaleString();
@@ -396,8 +812,7 @@ function render() {
   document.getElementById('profileCompleted').textContent = progress.completedLessons.length;
 
   // Avatars
-  const avatarButtons = document.querySelectorAll('.avatar-mini, #profileAvatarDisplay, #modalAvatarPreview');
-  avatarButtons.forEach(el => el.textContent = progress.avatar);
+  renderAvatarDisplays(progress.character);
 
   renderAchievements();
   renderCalendar();
@@ -716,29 +1131,56 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
   const closeModalBtn = document.getElementById('closeCharacterModal');
 
-  openModalBtns.forEach(btn => btn?.addEventListener('click', () => modal?.showModal()));
+  openModalBtns.forEach(btn => btn?.addEventListener('click', () => {
+    const usernameSelect = document.getElementById('usernameSelect');
+    if (usernameSelect) usernameSelect.value = progress.userName;
+    avatarLockNotice = '';
+    renderAvatarItemGrid();
+    modal?.showModal();
+  }));
   closeModalBtn?.addEventListener('click', () => modal?.close());
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) modal.close();
   });
 
-  // Avatar Selection inside Modal
-  const avatarOptions = document.querySelectorAll('.avatar-option');
-  avatarOptions.forEach(opt => {
-    opt.addEventListener('click', () => {
-      avatarOptions.forEach(o => o.classList.remove('active'));
-      opt.classList.add('active');
-      progress.avatar = opt.dataset.avatar;
+  // Character Customization Tabs
+  const tabItems = document.querySelectorAll('#characterTabBar .tab-item');
+  tabItems.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabItems.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeCustomizeTab = tab.dataset.tab;
+      avatarLockNotice = '';
+      renderAvatarItemGrid();
+    });
+  });
+  renderAvatarItemGrid();
+
+  // Username Picker
+  const usernameSelect = document.getElementById('usernameSelect');
+  if (usernameSelect) {
+    usernameSelect.innerHTML = NAME_BANK.map(name => `<option value="${name}">${name}</option>`).join('');
+    usernameSelect.value = progress.userName;
+    usernameSelect.addEventListener('change', (e) => {
+      progress.userName = e.target.value;
       saveProgress(progress);
       render();
     });
-  });
+  }
 
   // Continue Lesson Action
   document.getElementById('continueLessonBtn')?.addEventListener('click', () => {
     progress.xp += 100;
     saveProgress(progress);
     render();
+  });
+
+  // Course Map Button (Dashboard hero)
+  document.getElementById('viewCourseMapBtn')?.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector('.nav-item[data-view="view-course-map"]')?.classList.add('active');
+    document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-course-map')?.classList.add('active');
   });
 
   // Reset Progress Action
@@ -750,16 +1192,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Workspace Actions
-  document.getElementById('runCodeBtn')?.addEventListener('click', () => {
-    const output = document.getElementById('codeOutput');
-    output.textContent = 'Compiling Main.java...\nBuild Successful!\n\nWelcome to CodePath Sandbox!\nCurrent Level Progress: 62.0%';
-  });
-
-  document.getElementById('resetCodeBtn')?.addEventListener('click', () => {
-    document.getElementById('codeEditor').value = `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Welcome to CodePath Sandbox!");\n    }\n}`;
-    document.getElementById('codeOutput').textContent = 'Code reset to default template.';
-  });
   populateCalendarMonthSelect();
   document.getElementById('calendarPrevBtn')?.addEventListener('click', () => {
     calendarView = clampCalendarView(calendarView.year, calendarView.month - 1);
