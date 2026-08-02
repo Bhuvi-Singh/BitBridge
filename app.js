@@ -490,6 +490,55 @@ function isPartUnlocked(part) {
 
 let activeCustomizeTab = 'skin';
 let avatarLockNotice = '';
+let currentEngine = null; // Current VisualizerEngine instance
+
+// ---- Visualizer Registry & Loader ----
+async function loadVisualizer(algorithmKey) {
+  const canvas = document.getElementById('algoCanvas');
+  const controlsContainer = document.getElementById('vizAlgoControls');
+
+  if (!canvas || !controlsContainer) {
+    console.error('Canvas or controls container not found');
+    return;
+  }
+
+  // Reset canvas
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 500;
+  controlsContainer.innerHTML = '';
+
+  try {
+    // Dynamically import VisualizerRegistry and algorithm
+    const { VisualizerRegistry } = await import('./visualizers/core/VisualizerEngine.js');
+
+    // Mount the algorithm
+    const { engine, instance } = VisualizerRegistry.mount(algorithmKey, {
+      canvasId: 'algoCanvas',
+      controlsId: 'vizAlgoControls'
+    });
+
+    currentEngine = engine;
+
+    // Bind playback controls
+    document.getElementById('vizPlayBtn').onclick = () => engine.play();
+    document.getElementById('vizPauseBtn').onclick = () => engine.pause();
+    document.getElementById('vizStepFwdBtn').onclick = () => engine.stepForward();
+    document.getElementById('vizStepBackBtn').onclick = () => engine.stepBackward();
+    document.getElementById('vizResetBtn').onclick = () => engine.reset();
+    document.getElementById('vizSpeedSlider').oninput = (e) => {
+      engine.setSpeed(parseInt(e.target.value));
+    };
+
+    // Frame counter callback
+    engine.onFrameChange = (current, total) => {
+      document.getElementById('vizFrameInfo').textContent = `${current} / ${total}`;
+    };
+
+  } catch (err) {
+    console.error(`Failed to load visualizer "${algorithmKey}":`, err);
+    controlsContainer.innerHTML = `<p style="color: red;">Error loading visualizer</p>`;
+  }
+}
 
 function renderAvatarItemGrid() {
   const container = document.getElementById('avatarItemGrid');
@@ -1065,9 +1114,13 @@ function applySearchFilter(query) {
 }
 
 // --- INITIALIZATION & EVENT HANDLERS ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   render();
   renderCourseMap();
+
+  // Initialize visualizers (auto-registers all algorithms)
+  const { initializeVisualizers } = await import('./visualizers/visualizer-init.js');
+  initializeVisualizers().catch(err => console.error('Visualizer init failed:', err));
 
   // Dynamic Theme Property Test Compatibility
   document.documentElement.style.setProperty('--icon-color', 'currentColor');
@@ -1181,6 +1234,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.nav-item[data-view="view-course-map"]')?.classList.add('active');
     document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
     document.getElementById('view-course-map')?.classList.add('active');
+  });
+
+  // Visualizer: Load algorithm on nav click (example: lesson with data-algo attribute)
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.lesson-card[data-algo]')) {
+      const algoKey = e.target.closest('.lesson-card[data-algo]').dataset.algo;
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector('.nav-item[data-view="view-visualizer"]')?.classList.add('active');
+      document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-visualizer')?.classList.add('active');
+      loadVisualizer(algoKey);
+    }
   });
 
   // Reset Progress Action
