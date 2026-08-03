@@ -25,101 +25,76 @@
 // or implied, of the University of San Francisco
 
 // visualizers/algorithms/BST.js
-// Binary Search Tree visualization: Insert, Delete, Search operations.
+// Binary Search Tree: Insert, Delete, Find, Predecessor, Successor,
+// Traversals (Pre/In/Post/Level-order), Random, Clear.
+// All operations are always-visible buttons (no dropdown-triggered ops).
 
 import Algorithm from './Algorithm.js';
-import { VisualizerRegistry } from '../core/VisualizerEngine.js';
+import { VisualizerRegistry } from '../VisualizerEngine.js';
 
-const NODE_RADIUS = 20;
 const LEVEL_HEIGHT = 80;
-const H_GAP = 60;
+const TOP_Y = 60;
+const STATUS_Y = 20;
 
 export default class BST extends Algorithm {
 	constructor(engine, controlsId) {
 		super(engine, controlsId);
 		this.root = null;
-		this.nodeMap = new Map(); // id -> node data
+		this.nodeMap = new Map();
 		this.nextNodeId = 0;
 		this.setupControls();
 	}
 
 	setupControls() {
 		const valInput = this.addTextInput('Value', 'e.g., 50');
+		const readVal = () => {
+			const v = parseInt(valInput.value);
+			if (isNaN(v)) { this.shake(valInput); return null; }
+			return v;
+		};
 
-		this.addDropdown('Operation', [
-			['', 'Select...'],
-			['insert', 'Insert'],
-			['delete', 'Delete'],
-			['search', 'Search'],
-		], (op) => {
-			if (!op) return;
-			const val = parseInt(valInput.value);
-			if (isNaN(val)) { this.shake(valInput); return; }
-
-			if (op === 'insert') this.insert(val);
-			else if (op === 'delete') this.delete(val);
-			else if (op === 'search') this.search(val);
-
-			valInput.value = '';
-		});
-
-		this.addButton('Clear', () => {
-			this.clearCanvas();
-			this.root = null;
-			this.nodeMap.clear();
-			this.nextNodeId = 0;
-			this.run();
-		});
+		this.addButton('Insert', () => { const v = readVal(); if (v !== null) { this.insert(v); valInput.value = ''; } });
+		this.addButton('Delete', () => { const v = readVal(); if (v !== null) { this.deleteVal(v); valInput.value = ''; } });
+		this.addButton('Find', () => { const v = readVal(); if (v !== null) this.find(v); });
+		this.addButton('Predecessor', () => { const v = readVal(); if (v !== null) this.predecessor(v); });
+		this.addButton('Successor', () => { const v = readVal(); if (v !== null) this.successor(v); });
+		this.addButton('Pre-order', () => this.traverse('pre'));
+		this.addButton('In-order', () => this.traverse('in'));
+		this.addButton('Post-order', () => this.traverse('post'));
+		this.addButton('Level-order', () => this.traverse('level'));
+		this.addButton('Random', () => this.randomTree());
+		this.addButton('Clear', () => this.clearAll());
 	}
 
-	insert(val) {
-		this.clearCanvas();
-
-		if (!this.root) {
-			this.root = { val, left: null, right: null, id: this.nextNodeId++ };
-			this.nodeMap.set(this.root.id, this.root);
-		} else {
-			this._insertNode(this.root, val);
-		}
-
-		this.render();
+	// ---- Tree structure helpers ----
+	_makeNode(val) {
+		const node = { val, left: null, right: null, id: this.nextNodeId++ };
+		this.nodeMap.set(node.id, node);
+		return node;
 	}
 
-	_insertNode(node, val) {
-		if (val < node.val) {
-			if (node.left) this._insertNode(node.left, val);
-			else {
-				node.left = { val, left: null, right: null, id: this.nextNodeId++ };
-				this.nodeMap.set(node.left.id, node.left);
-			}
-		} else if (val > node.val) {
-			if (node.right) this._insertNode(node.right, val);
-			else {
-				node.right = { val, left: null, right: null, id: this.nextNodeId++ };
-				this.nodeMap.set(node.right.id, node.right);
+	_insertVal(val) {
+		if (!this.root) { this.root = this._makeNode(val); return this.root.id; }
+		let cur = this.root;
+		while (true) {
+			if (val === cur.val) return cur.id;
+			if (val < cur.val) {
+				if (!cur.left) { cur.left = this._makeNode(val); return cur.left.id; }
+				cur = cur.left;
+			} else {
+				if (!cur.right) { cur.right = this._makeNode(val); return cur.right.id; }
+				cur = cur.right;
 			}
 		}
-	}
-
-	delete(val) {
-		this.clearCanvas();
-		if (this.root) {
-			this.root = this._deleteNode(this.root, val);
-		}
-		this.render();
 	}
 
 	_deleteNode(node, val) {
 		if (!node) return null;
-
-		if (val < node.val) {
-			node.left = this._deleteNode(node.left, val);
-		} else if (val > node.val) {
-			node.right = this._deleteNode(node.right, val);
-		} else {
+		if (val < node.val) node.left = this._deleteNode(node.left, val);
+		else if (val > node.val) node.right = this._deleteNode(node.right, val);
+		else {
 			if (!node.left) return node.right;
 			if (!node.right) return node.left;
-
 			let minRight = node.right;
 			while (minRight.left) minRight = minRight.left;
 			node.val = minRight.val;
@@ -128,68 +103,243 @@ export default class BST extends Algorithm {
 		return node;
 	}
 
-	search(val) {
-		this.clearCanvas();
-		this._searchNode(this.root, val);
-		this.render();
+	_searchPath(val) {
+		const path = [];
+		let cur = this.root;
+		let found = false;
+		while (cur) {
+			path.push(cur.id);
+			if (val === cur.val) { found = true; break; }
+			cur = val < cur.val ? cur.left : cur.right;
+		}
+		return { path, found };
 	}
 
-	_searchNode(node, val) {
-		if (!node) return false;
+	_collectAll(node, nodeIds = [], edgeIds = []) {
+		if (!node) return { nodeIds, edgeIds };
+		nodeIds.push(node.id);
+		if (node.left) { edgeIds.push(`edge-${node.id}-l`); this._collectAll(node.left, nodeIds, edgeIds); }
+		if (node.right) { edgeIds.push(`edge-${node.id}-r`); this._collectAll(node.right, nodeIds, edgeIds); }
+		return { nodeIds, edgeIds };
+	}
 
-		if (val === node.val) {
-			node.found = true;
-			return true;
-		} else if (val < node.val) {
-			return this._searchNode(node.left, val);
-		} else {
-			return this._searchNode(node.right, val);
+	_layout(node, x, y, offset) {
+		if (!node) return;
+		node.x = x; node.y = y;
+		if (node.left) this._layout(node.left, x - offset, y + LEVEL_HEIGHT, Math.max(30, offset / 1.7));
+		if (node.right) this._layout(node.right, x + offset, y + LEVEL_HEIGHT, Math.max(30, offset / 1.7));
+	}
+
+	// ---- Drawing ----
+	_drawAll(node) {
+		if (!node) return;
+		if (node.left) {
+			this.cmd('createLine', `edge-${node.id}-l`, node.x, node.y, node.left.x, node.left.y, this.palette.muted);
+			this._drawAll(node.left);
+		}
+		if (node.right) {
+			this.cmd('createLine', `edge-${node.id}-r`, node.x, node.y, node.right.x, node.right.y, this.palette.muted);
+			this._drawAll(node.right);
+		}
+		this.cmd('createCircle', `node-${node.id}`, String(node.val), node.x, node.y);
+	}
+
+	_renderTree() {
+		if (this.root) {
+			const canvasWidth = this.engine.canvas.width || 800;
+			this._layout(this.root, canvasWidth / 2, TOP_Y, Math.max(80, canvasWidth / 5));
+			this._drawAll(this.root);
 		}
 	}
 
-	render() {
-		if (!this.root) { this.run(); return; }
+	_status(msg) {
+		const id = this.id();
+		this.cmd('createLabel', id, msg, (this.engine.canvas.width || 800) / 2, STATUS_Y);
+	}
 
-		this.nodePositions = {};
-		this._layoutTree(this.root, 400, 30, 150);
-		this._drawTree(this.root);
+	_highlightPathThenReset(path, color) {
+		path.forEach(id => {
+			this.highlight(`node-${id}`, color);
+			this.step();
+			this.unhighlight(`node-${id}`);
+			this.cmd('setForegroundColor', `node-${id}`, this.palette.text);
+		});
+	}
+
+	// ---- Operations ----
+	insert(val) {
+		this.clearCanvas();
+		const { path } = this._searchPath(val);
+		// Draw existing tree first so we can animate the descent
+		this._renderTree();
+		this._status(`Insert ${val}`);
+		this.step();
+		this._highlightPathThenReset(path, this.palette.accent);
+
+		const newId = this._insertVal(val);
+		this._renderTree(); // relayout/redraw including the new node
+		this.cmd('setBackgroundColor', `node-${newId}`, this.palette.success);
+		this.cmd('setForegroundColor', `node-${newId}`, '#ffffff');
 		this.step();
 		this.run();
 	}
 
-	_layoutTree(node, x, y, offset) {
-		if (!node) return;
+	deleteVal(val) {
+		this.clearCanvas();
+		const { path, found } = this._searchPath(val);
+		this._renderTree();
+		this._status(`Delete ${val}`);
+		this.step();
+		this._highlightPathThenReset(path, this.palette.accent);
 
-		node.x = x;
-		node.y = y;
-		this.nodePositions[node.id] = { x, y };
+		if (!found) {
+			this._status(`${val} not found`);
+			this.step();
+			this.run();
+			return;
+		}
 
-		if (node.left) {
-			this._layoutTree(node.left, x - offset, y + LEVEL_HEIGHT, Math.floor(offset / 2));
-		}
-		if (node.right) {
-			this._layoutTree(node.right, x + offset, y + LEVEL_HEIGHT, Math.floor(offset / 2));
-		}
+		const { nodeIds, edgeIds } = this._collectAll(this.root);
+		this.root = this._deleteNode(this.root, val);
+		nodeIds.forEach(id => this.cmd('delete', `node-${id}`));
+		edgeIds.forEach(id => this.cmd('delete', id));
+		this._renderTree();
+		this._status(`Deleted ${val}`);
+		this.step();
+		this.run();
 	}
 
-	_drawTree(node) {
-		if (!node) return;
+	find(val) {
+		this.clearCanvas();
+		const { path, found } = this._searchPath(val);
+		this._renderTree();
+		this._status(`Find ${val}`);
+		this.step();
+		this._highlightPathThenReset(path, this.palette.accent);
 
-		// Draw edges first
-		if (node.left) {
-			this.cmd('createLine', `edge-${node.id}-l`, node.x, node.y, node.left.x, node.left.y, this.palette.muted);
-			this._drawTree(node.left);
+		const lastId = path[path.length - 1];
+		if (lastId !== undefined) {
+			this.cmd('setBackgroundColor', `node-${lastId}`, found ? this.palette.success : this.palette.danger);
+			this.cmd('setForegroundColor', `node-${lastId}`, '#ffffff');
 		}
-		if (node.right) {
-			this.cmd('createLine', `edge-${node.id}-r`, node.x, node.y, node.right.x, node.right.y, this.palette.muted);
-			this._drawTree(node.right);
-		}
+		this._status(found ? `Found ${val}` : `${val} not found`);
+		this.step();
+		this.run();
+	}
 
-		// Draw node
-		const circleId = `node-${node.id}`;
-		const color = node.found ? this.palette.success : this.palette.nodeBg;
-		this.cmd('createCircle', circleId, String(node.val), node.x, node.y);
-		this.cmd('setBackgroundColor', circleId, color);
+	predecessor(val) {
+		this.clearCanvas();
+		const { path, found } = this._searchPath(val);
+		this._renderTree();
+		this._status(`Predecessor of ${val}`);
+		this.step();
+		this._highlightPathThenReset(path, this.palette.accent);
+
+		if (!found) { this._status(`${val} not found`); this.step(); this.run(); return; }
+		const target = this.nodeMap.get(path[path.length - 1]);
+		let pred = null;
+		if (target.left) {
+			pred = target.left;
+			while (pred.right) pred = pred.right;
+		}
+		if (pred) {
+			this.cmd('setBackgroundColor', `node-${pred.id}`, this.palette.highlight);
+			this.cmd('setForegroundColor', `node-${pred.id}`, '#ffffff');
+			this._status(`Predecessor: ${pred.val}`);
+		} else {
+			this._status('No predecessor');
+		}
+		this.step();
+		this.run();
+	}
+
+	successor(val) {
+		this.clearCanvas();
+		const { path, found } = this._searchPath(val);
+		this._renderTree();
+		this._status(`Successor of ${val}`);
+		this.step();
+		this._highlightPathThenReset(path, this.palette.accent);
+
+		if (!found) { this._status(`${val} not found`); this.step(); this.run(); return; }
+		const target = this.nodeMap.get(path[path.length - 1]);
+		let succ = null;
+		if (target.right) {
+			succ = target.right;
+			while (succ.left) succ = succ.left;
+		}
+		if (succ) {
+			this.cmd('setBackgroundColor', `node-${succ.id}`, this.palette.highlight);
+			this.cmd('setForegroundColor', `node-${succ.id}`, '#ffffff');
+			this._status(`Successor: ${succ.val}`);
+		} else {
+			this._status('No successor');
+		}
+		this.step();
+		this.run();
+	}
+
+	traverse(order) {
+		this.clearCanvas();
+		if (!this.root) { this._status('Tree is empty'); this.step(); this.run(); return; }
+
+		const seq = [];
+		const pre = n => { if (!n) return; seq.push(n); pre(n.left); pre(n.right); };
+		const inO = n => { if (!n) return; inO(n.left); seq.push(n); inO(n.right); };
+		const post = n => { if (!n) return; post(n.left); post(n.right); seq.push(n); };
+		const level = () => {
+			const q = [this.root];
+			while (q.length) { const n = q.shift(); seq.push(n); if (n.left) q.push(n.left); if (n.right) q.push(n.right); }
+		};
+		if (order === 'pre') pre(this.root);
+		else if (order === 'in') inO(this.root);
+		else if (order === 'post') post(this.root);
+		else level();
+
+		this._renderTree();
+		const labelId = this.id();
+		const label = { pre: 'Pre-order', in: 'In-order', post: 'Post-order', level: 'Level-order' }[order];
+		this.cmd('createLabel', labelId, `${label}: `, (this.engine.canvas.width || 800) / 2, STATUS_Y);
+		this.step();
+
+		let text = `${label}: `;
+		seq.forEach((node, idx) => {
+			this.highlight(`node-${node.id}`, this.palette.accent);
+			text += (idx > 0 ? ', ' : '') + node.val;
+			this.cmd('setText', labelId, text);
+			this.step();
+			this.unhighlight(`node-${node.id}`);
+			this.cmd('setForegroundColor', `node-${node.id}`, this.palette.text);
+			this.cmd('setBackgroundColor', `node-${node.id}`, this.palette.success);
+			this.cmd('setForegroundColor', `node-${node.id}`, '#ffffff');
+		});
+		this.step();
+		this.run();
+	}
+
+	randomTree() {
+		this.clearCanvas();
+		this.root = null;
+		this.nodeMap.clear();
+		this.nextNodeId = 0;
+
+		const count = Math.floor(Math.random() * 6) + 6; // 6-11 nodes
+		const used = new Set();
+		while (used.size < count) used.add(Math.floor(Math.random() * 99) + 1);
+		[...used].forEach(v => this._insertVal(v));
+
+		this._renderTree();
+		this._status(`Random tree (${count} nodes)`);
+		this.step();
+		this.run();
+	}
+
+	clearAll() {
+		this.clearCanvas();
+		this.root = null;
+		this.nodeMap.clear();
+		this.nextNodeId = 0;
+		this.run();
 	}
 }
 

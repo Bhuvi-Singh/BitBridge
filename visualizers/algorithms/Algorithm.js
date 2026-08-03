@@ -29,7 +29,7 @@
 // Base class all algorithm visualizers extend. Wraps command
 // queueing + a minimal DOM control builder for the controls panel.
 // ============================================================
-import { ThemeColors } from '../core/VisualizerEngine.js';
+import { ThemeColors } from '../VisualizerEngine.js';
 
 export default class Algorithm {
 	constructor(engine, controlsId) {

@@ -1,5 +1,5 @@
 // ============================================================
-// visualizers/core/VisualizerEngine.js
+// visualizers/VisualizerEngine.js
 // Framework-free canvas animation engine (replaces AnimationMain
 // + ObjectManager). Command-driven: algorithms push [action, ...args]
 // tuples; engine plays them back with lerped motion between steps.
@@ -84,7 +84,7 @@ class AnimatedObject {
 
         if (this.type !== 'line' && this.text) {
             ctx.fillStyle = this.fg;
-            ctx.font = '600 14px inherit, sans-serif';
+            ctx.font = '700 16px inherit, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(this.text, this.x, this.y);

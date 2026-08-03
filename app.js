@@ -492,6 +492,49 @@ let activeCustomizeTab = 'skin';
 let avatarLockNotice = '';
 let currentEngine = null; // Current VisualizerEngine instance
 
+// ---- Algorithm metadata (fill in your own About/Pseudocode/Big-O content) ----
+const ALGO_INFO = {
+  'bubble-sort': {
+    label: 'Bubble Sort',
+    about: 'Repeatedly steps through the array, swapping adjacent elements that are out of order until the array is sorted.',
+    bigO: { best: 'O(n)', average: 'O(n²)', worst: 'O(n²)', space: 'O(1)' },
+    pseudocode: {
+      english: [
+        'repeat until no swaps occur',
+        '  for each adjacent pair in the array',
+        '    if left > right, swap them',
+      ],
+      code: [
+        'do {',
+        '  swapped = false',
+        '  for (i = 0; i < n - 1; i++)',
+        '    if (arr[i] > arr[i+1])',
+        '      swap(arr[i], arr[i+1]); swapped = true',
+        '} while (swapped)',
+      ],
+    },
+  },
+  'bst': {
+    label: 'Binary Search Tree',
+    about: 'A tree where each node\'s left subtree holds smaller values and right subtree holds larger values, enabling O(log n) search/insert/delete on average.',
+    bigO: { best: 'O(log n)', average: 'O(log n)', worst: 'O(n)', space: 'O(n)' },
+    pseudocode: {
+      english: [
+        'to insert: compare value to node',
+        '  go left if smaller, right if larger',
+        '  insert at first empty spot',
+      ],
+      code: [
+        'insert(node, val):',
+        '  if node is null: return new Node(val)',
+        '  if val < node.val: node.left = insert(node.left, val)',
+        '  else: node.right = insert(node.right, val)',
+        '  return node',
+      ],
+    },
+  },
+};
+
 // ---- Visualizer Registry & Loader ----
 async function loadVisualizer(algorithmKey) {
   const canvas = document.getElementById('algoCanvas');
@@ -502,24 +545,22 @@ async function loadVisualizer(algorithmKey) {
     return;
   }
 
-  // Reset canvas
-  canvas.width = canvas.offsetWidth;
+  // Reset canvas (must set width/height attrs, not just CSS)
+  canvas.width = canvas.clientWidth || 800;
   canvas.height = 500;
   controlsContainer.innerHTML = '';
 
   try {
-    // Dynamically import VisualizerRegistry and algorithm
-    const { VisualizerRegistry } = await import('./visualizers/core/VisualizerEngine.js');
+    // NOTE: VisualizerEngine.js lives directly in visualizers/ (no core/ subfolder)
+    const { VisualizerRegistry } = await import('./visualizers/VisualizerEngine.js');
 
-    // Mount the algorithm
-    const { engine, instance } = VisualizerRegistry.mount(algorithmKey, {
+    const { engine } = VisualizerRegistry.mount(algorithmKey, {
       canvasId: 'algoCanvas',
       controlsId: 'vizAlgoControls'
     });
 
     currentEngine = engine;
 
-    // Bind playback controls
     document.getElementById('vizPlayBtn').onclick = () => engine.play();
     document.getElementById('vizPauseBtn').onclick = () => engine.pause();
     document.getElementById('vizStepFwdBtn').onclick = () => engine.stepForward();
@@ -529,14 +570,61 @@ async function loadVisualizer(algorithmKey) {
       engine.setSpeed(parseInt(e.target.value));
     };
 
-    // Frame counter callback
     engine.onFrameChange = (current, total) => {
-      document.getElementById('vizFrameInfo').textContent = `${current} / ${total}`;
+      const info = document.getElementById('vizFrameInfo');
+      if (info) info.textContent = `${current} / ${total}`;
     };
+
+    renderAlgoInfoPanel(algorithmKey);
+
+    const selector = document.getElementById('vizAlgoSelector');
+    if (selector) selector.value = algorithmKey;
 
   } catch (err) {
     console.error(`Failed to load visualizer "${algorithmKey}":`, err);
-    controlsContainer.innerHTML = `<p style="color: red;">Error loading visualizer</p>`;
+    controlsContainer.innerHTML = `<p style="color:#ef4444;">Error loading visualizer: ${err.message}</p>`;
+  }
+}
+
+// ---- Info Panel: About / Pseudocode (English/Code) / Big O ----
+let activeInfoTab = 'about';
+let activePseudoFormat = 'english';
+
+function renderAlgoInfoPanel(algorithmKey) {
+  const data = ALGO_INFO[algorithmKey];
+  const panel = document.getElementById('vizInfoPanelBody');
+  if (!panel) return;
+
+  if (!data) {
+    panel.innerHTML = `<p>No info available for "${algorithmKey}" yet.</p>`;
+    return;
+  }
+
+  if (activeInfoTab === 'about') {
+    panel.innerHTML = `<p>${data.about}</p>`;
+  } else if (activeInfoTab === 'bigO') {
+    panel.innerHTML = `
+      <table class="bigo-table">
+        <tr><th>Best</th><td>${data.bigO.best}</td></tr>
+        <tr><th>Average</th><td>${data.bigO.average}</td></tr>
+        <tr><th>Worst</th><td>${data.bigO.worst}</td></tr>
+        <tr><th>Space</th><td>${data.bigO.space}</td></tr>
+      </table>`;
+  } else if (activeInfoTab === 'pseudocode') {
+    const lines = data.pseudocode[activePseudoFormat] || [];
+    panel.innerHTML = `
+      <div class="pseudo-format-tabs">
+        <button class="pseudo-tab ${activePseudoFormat === 'english' ? 'active' : ''}" data-format="english">English</button>
+        <button class="pseudo-tab ${activePseudoFormat === 'code' ? 'active' : ''}" data-format="code">Code</button>
+      </div>
+      <pre class="pseudocode-block">${lines.join('\n')}</pre>`;
+
+    panel.querySelectorAll('.pseudo-tab').forEach(btn => {
+      btn.onclick = () => {
+        activePseudoFormat = btn.dataset.format;
+        renderAlgoInfoPanel(algorithmKey);
+      };
+    });
   }
 }
 
@@ -1149,7 +1237,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.view-content').forEach(view => {
         view.classList.remove('active');
       });
-      document.getElementById(targetView)?.classList.add('active');
+
+      const targetElement = document.getElementById(targetView);
+      if (targetElement) {
+        targetElement.classList.add('active');
+
+        // If navigating to visualizer, ensure canvas is ready
+        if (targetView === 'view-visualizer') {
+          const canvas = document.getElementById('algoCanvas');
+          if (canvas) {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 500;
+          }
+        }
+      } else {
+        console.warn(`View #${targetView} not found`);
+      }
     });
   });
 
@@ -1247,6 +1350,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadVisualizer(algoKey);
     }
   });
+
+  // Visualizer: Algorithm selector dropdown (pick data structure to view)
+  const vizSelector = document.getElementById('vizAlgoSelector');
+  if (vizSelector) {
+    Object.entries(ALGO_INFO).forEach(([key, data]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = data.label;
+      vizSelector.appendChild(opt);
+    });
+    vizSelector.addEventListener('change', (e) => loadVisualizer(e.target.value));
+  }
+
+  // Visualizer: Info panel tabs (About / Pseudocode / Big O)
+  document.querySelectorAll('.viz-info-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.viz-info-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeInfoTab = tab.dataset.infoTab;
+      const selector = document.getElementById('vizAlgoSelector');
+      renderAlgoInfoPanel(selector ? selector.value : 'bubble-sort');
+    });
+  });
+
+  // Auto-load the first registered algorithm when the Visualizer nav is opened
+  document.querySelector('.nav-item[data-view="view-visualizer"]')?.addEventListener('click', () => {
+    if (!currentEngine) loadVisualizer(vizSelector ? vizSelector.value : 'bubble-sort');
+  }, { once: true });
+
+
 
   // Reset Progress Action
   document.getElementById('resetProgressBtn')?.addEventListener('click', () => {

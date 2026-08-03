@@ -25,17 +25,14 @@
 // or implied, of the University of San Francisco
 
 // visualizers/algorithms/BubbleSort.js
-// BubbleSort visualization using command-driven engine.
-// Extends Algorithm base class; queues commands (no direct canvas manipulation).
-
 import Algorithm from './Algorithm.js';
-import { VisualizerRegistry } from '../core/VisualizerEngine.js';
+import { VisualizerRegistry } from '../VisualizerEngine.js';
 
 const MAX_SIZE = 18;
-const ELEM_WIDTH = 50;
-const ELEM_HEIGHT = 50;
-const ARRAY_START_X = 100;
 const ARRAY_START_Y = 130;
+const MIN_ELEM = 44;
+const MAX_ELEM = 72;
+const MARGIN = 60;
 
 export default class BubbleSort extends Algorithm {
 	constructor(engine, controlsId) {
@@ -45,13 +42,13 @@ export default class BubbleSort extends Algorithm {
 		this.compCount = 0;
 		this.swapCount = 0;
 		this.arrayIds = [];
-
+		this.elemSize = 60;
 		this.setupControls();
 	}
 
 	setupControls() {
 		const listInput = this.addTextInput('Array', 'e.g., 5,2,8,1,9');
-		const exampleDropdown = this.addDropdown('Example', [
+		this.addDropdown('Example', [
 			['', 'Load Example...'],
 			['sorted', 'Sorted: 1,2,3,4,5'],
 			['reverse', 'Reverse: 5,4,3,2,1'],
@@ -69,14 +66,18 @@ export default class BubbleSort extends Algorithm {
 			}
 			if (vals) listInput.value = vals;
 		});
-
 		this.addButton('Sort', () => {
 			const input = listInput.value.split(',').map(x => x.trim()).filter(x => x);
 			if (!input.length) { this.shake(listInput); return; }
 			this.sort(input.map(Number).filter(x => !isNaN(x)));
 		});
-
 		this.addButton('Clear', () => this.clearAll());
+	}
+
+	// Reset a slot's colors to the default (non-highlighted) state
+	resetColor(id) {
+		this.cmd('setForegroundColor', id, this.palette.text);
+		this.cmd('setBackgroundColor', id, this.palette.nodeBg);
 	}
 
 	sort(list) {
@@ -87,17 +88,20 @@ export default class BubbleSort extends Algorithm {
 		this.swapCount = 0;
 		this.displayData = [...this.arrayData];
 
-		// Create array visualization
+		// Size boxes to fit the canvas width regardless of array length
+		const canvasWidth = this.engine.canvas.width || 800;
+		this.elemSize = Math.max(MIN_ELEM, Math.min(MAX_ELEM,
+			Math.floor((canvasWidth - MARGIN * 2) / this.arrayData.length)));
+		const startX = MARGIN + this.elemSize / 2;
+
 		for (let i = 0; i < this.arrayData.length; i++) {
 			const id = this.id();
 			this.arrayIds.push(id);
-			const x = ARRAY_START_X + i * ELEM_WIDTH;
-			const y = ARRAY_START_Y;
-			this.cmd('createRect', id, String(this.arrayData[i]), ELEM_WIDTH, ELEM_HEIGHT, x, y);
+			const x = startX + i * this.elemSize;
+			this.cmd('createRect', id, String(this.arrayData[i]), this.elemSize, this.elemSize, x, ARRAY_START_Y);
 		}
 		this.step();
 
-		// Bubble sort algorithm
 		let sorted = false;
 		let end = this.arrayData.length - 1;
 
@@ -105,6 +109,7 @@ export default class BubbleSort extends Algorithm {
 			sorted = true;
 			for (let i = 0; i < end; i++) {
 				this.compCount++;
+				// Only the two compared elements turn orange, only for this step
 				this.highlight(this.arrayIds[i], this.palette.accent);
 				this.highlight(this.arrayIds[i + 1], this.palette.accent);
 				this.step();
@@ -114,37 +119,35 @@ export default class BubbleSort extends Algorithm {
 					sorted = false;
 				}
 
+				// Always fully reset color after comparing (fixes lingering orange text)
 				this.unhighlight(this.arrayIds[i]);
 				this.unhighlight(this.arrayIds[i + 1]);
+				this.resetColor(this.arrayIds[i]);
+				this.resetColor(this.arrayIds[i + 1]);
 			}
 			end--;
 		}
 
-		// Mark as sorted
+		// Mark as sorted: green background, white text for contrast
 		for (const id of this.arrayIds) {
 			this.cmd('setBackgroundColor', id, this.palette.success);
+			this.cmd('setForegroundColor', id, '#ffffff');
 		}
 		this.step();
-
 		this.run();
 	}
 
 	swap(i, j) {
 		this.swapCount++;
-
-		// Swap data
 		[this.arrayData[i], this.arrayData[j]] = [this.arrayData[j], this.arrayData[i]];
 		[this.displayData[i], this.displayData[j]] = [this.displayData[j], this.displayData[i]];
 
-		// Update text + visual
 		this.cmd('setText', this.arrayIds[i], String(this.displayData[i]));
 		this.cmd('setText', this.arrayIds[j], String(this.displayData[j]));
 		this.cmd('setForegroundColor', this.arrayIds[i], this.palette.danger);
 		this.cmd('setForegroundColor', this.arrayIds[j], this.palette.danger);
 		this.step();
-
-		this.cmd('setForegroundColor', this.arrayIds[i], this.palette.text);
-		this.cmd('setForegroundColor', this.arrayIds[j], this.palette.text);
+		// Color gets reset to default right after by the caller (sort loop)
 	}
 
 	clearAll() {
