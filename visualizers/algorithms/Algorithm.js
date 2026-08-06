@@ -59,6 +59,20 @@ export default class Algorithm {
 		this.engine.loadCommands([]);
 	}
 
+	// Resizes the canvas's actual pixel buffer AND pins its CSS display size to
+	// match exactly (1:1). Without this, some layout contexts can stretch the
+	// canvas's CSS box to a different aspect ratio than its pixel buffer, which
+	// distorts every shape drawn on it (circles render as ellipses). Pinning
+	// means content can only ever overflow the wrapper's bounds — never scale —
+	// so the wrapper's scrollbar is the only thing that ever kicks in.
+	resizeCanvas(width, height) {
+		const canvas = this.engine.canvas;
+		if (width !== undefined) canvas.width = width;
+		if (height !== undefined) canvas.height = height;
+		canvas.style.width = canvas.width + 'px';
+		canvas.style.height = canvas.height + 'px';
+	}
+
 	id() { return this.nextId++; }
 
 	// ---- Animation convenience wrappers ----

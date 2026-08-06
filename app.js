@@ -688,7 +688,7 @@ function renderAvatarItemGrid() {
   });
 }
 
-const STORAGE_KEY = 'codepath_dashboard_progress';
+const STORAGE_KEY = 'bitbridge_dashboard_progress';
 
 const DEFAULT_PROGRESS = {
   userName: 'Byte Scholar',
@@ -853,7 +853,7 @@ function importProgressData(exportString) {
   } else if (exportString.startsWith(prefixV1)) {
     data = JSON.parse(decodeURIComponent(escape(atob(exportString.slice(prefixV1.length).trim()))));
   } else {
-    throw new Error('Not a valid CodePath export code.');
+    throw new Error('Not a valid BitBridge export code.');
   }
 
   if (typeof data.xp !== 'number' || !Array.isArray(data.completedLessons)) {
@@ -886,11 +886,11 @@ function resetProgress() {
 }
 
 document.getElementById('exportDataBtn')?.addEventListener('click', () => {
-  window.prompt('Copy your CodePath export code (select all, then Ctrl/Cmd+C):', exportProgressData());
+  window.prompt('Copy your BitBridge export code (select all, then Ctrl/Cmd+C):', exportProgressData());
 });
 
 document.getElementById('importDataBtn')?.addEventListener('click', () => {
-  const input = window.prompt('Paste your CodePath export code:');
+  const input = window.prompt('Paste your BitBridge export code:');
   if (!input) return;
   try {
     importProgressData(input.trim());
