@@ -44,14 +44,19 @@ export default class Algorithm {
 	cmd(action, ...args) { this.commands.push([action, ...args]); }
 	step() { this.cmd('step'); }
 
+	// Appends this operation's commands to the ONGOING session (existing objects
+	// persist) and plays through them. Use hardReset() first if you need a wipe.
 	run() {
-		this.engine.loadCommands(this.commands);
+		this.engine.appendCommands(this.commands);
 		this.commands = [];
+		this.engine.play();
 	}
 
-	clearCanvas() {
+	// Full wipe: clears every object and animation history. Use for a true reset
+	// (e.g. a "Clear" button), not between ordinary operations.
+	hardReset() {
 		this.commands = [];
-		this.engine.loadCommands([]); // wipes objectManager + history
+		this.engine.loadCommands([]);
 	}
 
 	id() { return this.nextId++; }
@@ -98,6 +103,63 @@ export default class Algorithm {
 	shake(el) {
 		el?.classList.add('shake-animation');
 		setTimeout(() => el?.classList.remove('shake-animation'), 300);
+	}
+
+	// ---- Grouped control-builder (visually separated groups w/ dividers) ----
+	// Use for control bars with several distinct operations (e.g. BST).
+	startGroup(vertical = false) {
+		if (!this.controls) return null;
+		if (this._groupStarted) {
+			const divider = document.createElement('div');
+			divider.className = 'algo-divider';
+			this.controls.appendChild(divider);
+		}
+		this._groupStarted = true;
+		const group = document.createElement('div');
+		group.className = 'algo-group' + (vertical ? ' vertical' : '');
+		this.controls.appendChild(group);
+		this._activeGroup = group;
+		return group;
+	}
+
+	addTextInputInline(placeholder = '') {
+		const input = document.createElement('input');
+		input.type = 'text';
+		input.className = 'algo-text-input-inline';
+		input.placeholder = placeholder;
+		(this._activeGroup || this.controls).appendChild(input);
+		return input;
+	}
+
+	addButtonInline(label, onClick) {
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = 'algo-btn';
+		btn.textContent = label;
+		btn.onclick = onClick;
+		(this._activeGroup || this.controls).appendChild(btn);
+		return btn;
+	}
+
+	// options: [[value, label], ...]. onChange fires with the newly selected value.
+	addRadioList(name, options, onChange, checkedIndex = 0) {
+		const wrap = document.createElement('div');
+		wrap.className = 'algo-radio-list';
+		options.forEach(([value, label], idx) => {
+			const row = document.createElement('label');
+			row.className = 'algo-radio-row';
+			const radio = document.createElement('input');
+			radio.type = 'radio';
+			radio.name = name;
+			radio.value = value;
+			if (idx === checkedIndex) radio.checked = true;
+			radio.onchange = () => onChange(value);
+			row.appendChild(radio);
+			row.appendChild(document.createTextNode(label));
+			wrap.appendChild(row);
+		});
+		(this._activeGroup || this.controls).appendChild(wrap);
+		return wrap;
 	}
 
 	_wrap(labelText, el) {

@@ -329,15 +329,17 @@
             <div id="vizAlgoControls" class="visualizer-algo-controls"></div>
 
             <!-- Canvas -->
-            <canvas id="algoCanvas" class="visualizer-canvas" width="800" height="500"></canvas>
+            <div class="visualizer-canvas-wrapper">
+              <canvas id="algoCanvas" class="visualizer-canvas" width="800" height="500"></canvas>
+            </div>
 
             <!-- Playback Controls -->
             <div class="visualizer-playback-controls">
-              <button class="btn btn-sm" id="vizPlayBtn">▶ Play</button>
-              <button class="btn btn-sm" id="vizPauseBtn">⏸ Pause</button>
-              <button class="btn btn-sm" id="vizStepBackBtn">⏮ Back</button>
-              <button class="btn btn-sm" id="vizStepFwdBtn">Next ⏭</button>
-              <button class="btn btn-sm" id="vizResetBtn">⟲ Reset</button>
+              <button class="btn btn-sm" id="vizSkipBackBtn" title="Skip to start">⏮ Skip to start</button>
+              <button class="btn btn-sm" id="vizStepBackBtn" title="Step back">⏮ Back</button>
+              <button class="btn btn-sm" id="vizPlayPauseBtn" title="Play/Pause">▶ Play</button>
+              <button class="btn btn-sm" id="vizStepFwdBtn" title="Step forward">Next ⏭</button>
+              <button class="btn btn-sm" id="vizSkipFwdBtn" title="Skip to end">⏭ Skip to end</button>
               <label>Speed: <input type="range" id="vizSpeedSlider" min="1" max="100" value="75"
                   class="speed-slider"></label>
               <span class="frame-info" id="vizFrameInfo">0 / 0</span>

@@ -81,17 +81,22 @@ export default class BubbleSort extends Algorithm {
 	}
 
 	sort(list) {
-		this.clearCanvas();
+		this.hardReset();
 		this.arrayData = list.slice(0, MAX_SIZE);
 		this.arrayIds = [];
 		this.compCount = 0;
 		this.swapCount = 0;
 		this.displayData = [...this.arrayData];
 
-		// Size boxes to fit the canvas width regardless of array length
-		const canvasWidth = this.engine.canvas.width || 800;
+		// Pick a readable box size (never below MIN_ELEM), then grow the canvas
+		// to fit — previously MIN_ELEM could override the fit calculation and
+		// force boxes wider than the fixed canvas, clipping the array off-screen.
+		const baselineWidth = 800;
 		this.elemSize = Math.max(MIN_ELEM, Math.min(MAX_ELEM,
-			Math.floor((canvasWidth - MARGIN * 2) / this.arrayData.length)));
+			Math.floor((baselineWidth - MARGIN * 2) / this.arrayData.length)));
+		const neededWidth = MARGIN * 2 + this.arrayData.length * this.elemSize;
+		const canvas = this.engine.canvas;
+		canvas.width = Math.max(baselineWidth, neededWidth);
 		const startX = MARGIN + this.elemSize / 2;
 
 		for (let i = 0; i < this.arrayData.length; i++) {
@@ -151,7 +156,7 @@ export default class BubbleSort extends Algorithm {
 	}
 
 	clearAll() {
-		this.clearCanvas();
+		this.hardReset();
 		this.arrayData = [];
 		this.arrayIds = [];
 		this.compCount = 0;

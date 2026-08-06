@@ -123,7 +123,9 @@ class ObjectManager {
     createCircle(id, text, x, y) { this.objects.set(id, new AnimatedObject(id, 'circle', { text, x, y, toX: x, toY: y })); }
     createLabel(id, text, x, y) { this.objects.set(id, new AnimatedObject(id, 'label', { text, x, y, toX: x, toY: y })); }
     createHighlightCircle(id, color, x, y) { this.objects.set(id, new AnimatedObject(id, 'highlightCircle', { fg: color, x, y, toX: x, toY: y, alwaysOnTop: true })); }
-    createLine(id, x1, y1, x2, y2, color) { this.objects.set(id, new AnimatedObject(id, 'line', { x: x1, y: y1, toX2: x2, toY2: y2, fg: color || ThemeColors.palette().muted })); }
+    createLine(id, x1, y1, x2, y2, color) { this.objects.set(id, new AnimatedObject(id, 'line', { x: x1, y: y1, toX: x1, toY: y1, toX2: x2, toY2: y2, fg: color || ThemeColors.palette().muted, layer: -1 })); }
+    // Reposition BOTH endpoints of an existing line (used when connected nodes move, e.g. tree re-layout)
+    updateLine(id, x1, y1, x2, y2) { const o = this.get(id); if (o) { o.toX = x1; o.toY = y1; o.toX2 = x2; o.toY2 = y2; } }
 
     delete(id) { this.objects.delete(id); }
     setText(id, text) { const o = this.get(id); if (o) o.text = text; }
@@ -164,7 +166,7 @@ class VisualizerEngine {
         this.onFrameChange = null; // optional UI callback(stepIndex, total)
     }
 
-    // Load a flat command list; 'step' marks a frame boundary
+    // Load a flat command list; 'step' marks a frame boundary. Wipes everything (hard reset).
     loadCommands(commands) {
         this.pause();
         this.objectManager.clear();
@@ -176,6 +178,23 @@ class VisualizerEngine {
         this.stepIndex = 0;
         this.history = [this.objectManager.snapshot()];
         this._applyStep(0);
+        this._notify();
+    }
+
+    // Extend the CURRENT session with more commands, without wiping existing objects.
+    // Used by algorithms (e.g. BST) whose visuals should persist across operations —
+    // only the specific nodes/edges that change get created/moved/deleted.
+    appendCommands(commands) {
+        this.pause();
+        if (this.steps.length === 0) this.steps = [[]];
+        if (this.history[this.stepIndex] === undefined) {
+            this.history[this.stepIndex] = this.objectManager.snapshot();
+        }
+        this.steps.push([]); // new operation starts its own fresh frame
+        for (const c of commands) {
+            if (c[0] === 'step') this.steps.push([]);
+            else this.steps[this.steps.length - 1].push(c);
+        }
         this._notify();
     }
 
@@ -231,6 +250,17 @@ class VisualizerEngine {
         this._notify();
     }
 
+    // Jump directly to the final frame without animating through the steps in between
+    skipToEnd() {
+        this.pause();
+        while (this.stepIndex < this.steps.length - 1) {
+            this.stepIndex++;
+            if (this.history[this.stepIndex] === undefined) this.history[this.stepIndex] = this.objectManager.snapshot();
+            this._applyStep(this.stepIndex);
+        }
+        this._notify();
+    }
+
     setSpeed(speed) { this.speed = Math.max(1, Math.min(100, speed)); }
 
     isFinished() { return this.stepIndex >= this.steps.length - 1; }
@@ -243,7 +273,7 @@ class VisualizerEngine {
 
         if (this._lerpT >= 1) {
             this._lerpT = 0;
-            if (this.stepIndex >= this.steps.length - 1) { this.pause(); return; }
+            if (this.stepIndex >= this.steps.length - 1) { this.pause(); this._notify(); return; }
             this.stepIndex++;
             this.history[this.stepIndex] = this.objectManager.snapshot();
             this._applyStep(this.stepIndex);

@@ -545,8 +545,8 @@ async function loadVisualizer(algorithmKey) {
     return;
   }
 
-  // Reset canvas (must set width/height attrs, not just CSS)
-  canvas.width = canvas.clientWidth || 800;
+  // Reset canvas to baseline size; algorithms grow it dynamically if content needs more room
+  canvas.width = 800;
   canvas.height = 500;
   controlsContainer.innerHTML = '';
 
@@ -561,11 +561,20 @@ async function loadVisualizer(algorithmKey) {
 
     currentEngine = engine;
 
-    document.getElementById('vizPlayBtn').onclick = () => engine.play();
-    document.getElementById('vizPauseBtn').onclick = () => engine.pause();
-    document.getElementById('vizStepFwdBtn').onclick = () => engine.stepForward();
-    document.getElementById('vizStepBackBtn').onclick = () => engine.stepBackward();
-    document.getElementById('vizResetBtn').onclick = () => engine.reset();
+    const playPauseBtn = document.getElementById('vizPlayPauseBtn');
+    const syncPlayPauseLabel = () => {
+      playPauseBtn.textContent = engine.isPlaying ? '⏸ Pause' : '▶ Play';
+    };
+
+    document.getElementById('vizSkipBackBtn').onclick = () => { engine.reset(); syncPlayPauseLabel(); };
+    document.getElementById('vizStepBackBtn').onclick = () => { engine.stepBackward(); syncPlayPauseLabel(); };
+    playPauseBtn.onclick = () => {
+      if (engine.isPlaying) engine.pause();
+      else engine.play();
+      syncPlayPauseLabel();
+    };
+    document.getElementById('vizStepFwdBtn').onclick = () => { engine.stepForward(); syncPlayPauseLabel(); };
+    document.getElementById('vizSkipFwdBtn').onclick = () => { engine.skipToEnd(); syncPlayPauseLabel(); };
     document.getElementById('vizSpeedSlider').oninput = (e) => {
       engine.setSpeed(parseInt(e.target.value));
     };
@@ -573,7 +582,9 @@ async function loadVisualizer(algorithmKey) {
     engine.onFrameChange = (current, total) => {
       const info = document.getElementById('vizFrameInfo');
       if (info) info.textContent = `${current} / ${total}`;
+      syncPlayPauseLabel();
     };
+    syncPlayPauseLabel();
 
     renderAlgoInfoPanel(algorithmKey);
 
@@ -1246,8 +1257,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (targetView === 'view-visualizer') {
           const canvas = document.getElementById('algoCanvas');
           if (canvas) {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = 500;
+            canvas.width = canvas.width || 800;
+            canvas.height = canvas.height || 500;
           }
         }
       } else {
