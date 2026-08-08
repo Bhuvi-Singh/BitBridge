@@ -120,7 +120,7 @@ class ObjectManager {
 
     // ---- Command handlers (dispatched by engine as objectManager[action](...)) ----
     createRect(id, text, w, h, x, y) { this.objects.set(id, new AnimatedObject(id, 'rect', { text, w, h, x, y, toX: x, toY: y })); }
-    createCircle(id, text, x, y) { this.objects.set(id, new AnimatedObject(id, 'circle', { text, x, y, toX: x, toY: y })); }
+    createCircle(id, text, x, y, r = 20) { this.objects.set(id, new AnimatedObject(id, 'circle', { text, x, y, toX: x, toY: y, r })); }
     createLabel(id, text, x, y) { this.objects.set(id, new AnimatedObject(id, 'label', { text, x, y, toX: x, toY: y })); }
     createHighlightCircle(id, color, x, y) { this.objects.set(id, new AnimatedObject(id, 'highlightCircle', { fg: color, x, y, toX: x, toY: y, alwaysOnTop: true })); }
     createLine(id, x1, y1, x2, y2, color) { this.objects.set(id, new AnimatedObject(id, 'line', { x: x1, y: y1, toX: x1, toY: y1, toX2: x2, toY2: y2, fg: color || ThemeColors.palette().muted, layer: -1 })); }
@@ -136,6 +136,7 @@ class ObjectManager {
     setHighlight(id, on) { const o = this.get(id); if (o) o.highlighted = !!on; }
     setAlpha(id, alpha) { const o = this.get(id); if (o) o.alpha = alpha; }
     setLayer(id, layer) { const o = this.get(id); if (o) o.layer = layer; }
+    setRadius(id, r) { const o = this.get(id); if (o) o.r = r; }
 
     // Instant position set (used at frame-boundary / skip)
     applyFinalPositions() {

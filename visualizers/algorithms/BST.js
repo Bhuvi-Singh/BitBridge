@@ -25,11 +25,25 @@
 // or implied, of the University of San Francisco
 
 // visualizers/algorithms/BST.js
+// Binary Search Tree — logic ported 1:1 from CS1332's BST.js (David Galles /
+// USF visualization-tool), adapted to vanilla ES6 + our command-driven engine.
+// Matches: compare(), addH() (duplicate = ignored, no node created), removeH()
+// (leaf / 1-child / 2-child cases), removeSucc()/removePred() (successor =
+// leftmost of right subtree, predecessor = rightmost of left subtree, walking
+// down only — never needs ancestor fallback since a 2-child node's right/left
+// subtree is guaranteed non-empty), resizeWidths()/setNewPositions() (subtree-
+// width based layout), and an animated FIFO queue for level-order traversal.
+//
+// Difference from CS1332: the tree persists across operations (only the nodes
+// that actually change are created/moved/deleted) instead of the "Text field ->
+// button" bar being redrawn from scratch, and a standalone Predecessor/Successor
+// query is added (with proper ancestor-traversal fallback for nodes that lack
+// the relevant direct subtree) — CS1332 only uses those two names internally
+// for 2-child deletion, where no subtree is ever missing.
 
 import Algorithm from './Algorithm.js';
 import { VisualizerRegistry } from '../VisualizerEngine.js';
 
-const WIDTH_DELTA = 60;
 const HEIGHT_DELTA = 80;
 const STARTING_Y = 110; // leaves headroom above the tree for status/traversal labels
 const STATUS_Y = 20;
@@ -65,6 +79,7 @@ export default class BST extends Algorithm {
 		// object and silently no-op once the delete actually executed).
 		this.liveNodeIds = new Set();
 		this.liveEdgeIds = new Set();
+		this.resultBoxIds = []; // boxes in the bottom "results" row, filled live during traversal
 		this.predSucc = 'succ'; // toggle: which strategy replaces a 2-child node on delete
 		this.lastFindVal = null;
 
@@ -153,6 +168,13 @@ export default class BST extends Algorithm {
 		return isNumA ? -1 : 1;
 	}
 
+	// Radius grows with digit count so long values (e.g. 5-digit numbers)
+	// never spill text outside the node — capped so it can't get huge.
+	_nodeRadius(data) {
+		const len = String(data).length;
+		return Math.min(40, 20 + Math.max(0, len - 2) * 6);
+	}
+
 	// ---- Status labels (persistent — update in place, never recreate) ----
 	_setStatus(msg) { this.cmd('setText', this.statusLabelId, msg); }
 	_resetAllNodeColors() {
@@ -161,6 +183,21 @@ export default class BST extends Algorithm {
 			this.cmd('setForegroundColor', `node-${id}`, this.palette.text);
 			this.cmd('setBackgroundColor', `node-${id}`, this.palette.nodeBg);
 		});
+	}
+
+	// ---- Bottom "results" row: fills up live as traversal visits each node ----
+	_clearResultRow() {
+		this.resultBoxIds.forEach(id => this.cmd('delete', id));
+		this.resultBoxIds = [];
+	}
+	_resultRowY() { return (this.engine.canvas.height || 500) - 30; }
+	_appendResultBox(value) {
+		const id = this.id();
+		const x = 50 + this.resultBoxIds.length * 46;
+		this.cmd('createRect', id, String(value), 38, 38, x, this._resultRowY());
+		this.cmd('setBackgroundColor', id, this.palette.success);
+		this.cmd('setForegroundColor', id, '#ffffff');
+		this.resultBoxIds.push(id);
 	}
 
 	// ---- Structural helpers ----
@@ -221,10 +258,15 @@ export default class BST extends Algorithm {
 	}
 
 	// ---- Layout: subtree-width based (mirrors CS1332 resizeWidths/setNewPositions) ----
+	// Minimum half-width now scales with each node's OWN radius (not a fixed
+	// constant), so multi-digit nodes reserve enough horizontal room and
+	// sibling subtrees can never be packed close enough for edges to cross
+	// through a node.
 	_resizeWidths(node) {
 		if (!node) return 0;
-		node.leftWidth = Math.max(this._resizeWidths(node.left), WIDTH_DELTA / 2);
-		node.rightWidth = Math.max(this._resizeWidths(node.right), WIDTH_DELTA / 2);
+		const minHalf = this._nodeRadius(node.data) + 10;
+		node.leftWidth = Math.max(this._resizeWidths(node.left), minHalf);
+		node.rightWidth = Math.max(this._resizeWidths(node.right), minHalf);
 		return node.leftWidth + node.rightWidth;
 	}
 
@@ -244,7 +286,7 @@ export default class BST extends Algorithm {
 	_syncTree(node) {
 		if (!node) return;
 		if (!this.liveNodeIds.has(node.id)) {
-			this.cmd('createCircle', `node-${node.id}`, String(node.data), node.x, node.y);
+			this.cmd('createCircle', `node-${node.id}`, String(node.data), node.x, node.y, this._nodeRadius(node.data));
 			this.liveNodeIds.add(node.id);
 		} else {
 			this.cmd('setPosition', `node-${node.id}`, node.x, node.y);
@@ -282,11 +324,11 @@ export default class BST extends Algorithm {
 	// immediately after to avoid a blank-frame flash.
 	_ensureCanvasFits() {
 		const depth = this._computeDepth(this.root);
-		const needed = STARTING_Y + depth * HEIGHT_DELTA + 80; // node radius + bottom margin
+		const needed = STARTING_Y + depth * HEIGHT_DELTA + 130; // node radius + bottom margin for the traversal result row
 		const canvas = this.engine.canvas;
 		const target = Math.max(500, needed);
 		if (canvas.height !== target) {
-			canvas.height = target;
+			this.resizeCanvas(canvas.width, target);
 			this.engine.objectManager.draw();
 		}
 	}
@@ -455,6 +497,7 @@ export default class BST extends Algorithm {
 		}
 		curr.data = dummy[0];
 		this.cmd('setText', `node-${curr.id}`, String(curr.data));
+		this.cmd('setRadius', `node-${curr.id}`, this._nodeRadius(curr.data));
 		this.step();
 		return curr;
 	}
@@ -590,6 +633,7 @@ export default class BST extends Algorithm {
 	// ---- Traversals ----
 	traverse(order) {
 		this._resetAllNodeColors();
+		this._clearResultRow();
 		this.cmd('setText', this.traversalLabelId, '');
 
 		if (!this.root) { this._setStatus('Tree is empty'); this.step(); this.run(); return; }
@@ -608,17 +652,15 @@ export default class BST extends Algorithm {
 		else if (order === 'in') inO(this.root);
 		else post(this.root);
 
-		let text = `${label}: `;
-		seq.forEach((node, idx) => {
+		seq.forEach((node) => {
 			this._setStatus(`Visiting ${node.data}...`);
 			this.highlight(`node-${node.id}`, this.palette.accent);
 			this.step();
-			text += (idx > 0 ? ', ' : '') + node.data;
-			this.cmd('setText', this.traversalLabelId, text);
+			this._appendResultBox(node.data); // grows the bottom array in real time
+			this.step();
 			this.unhighlight(`node-${node.id}`);
 			this.cmd('setBackgroundColor', `node-${node.id}`, this.palette.success);
 			this.cmd('setForegroundColor', `node-${node.id}`, '#ffffff');
-			this.step();
 		});
 		this._setStatus(`${label} complete`);
 		this.step();
@@ -628,7 +670,8 @@ export default class BST extends Algorithm {
 	// Level-order with an animated on-screen FIFO queue (enqueue/dequeue), as in CS1332
 	_levelOrder() {
 		this._setStatus('Level-order traversal');
-		const queueY = (this.engine.canvas.height || 500) - 40; // stay pinned near the bottom regardless of tree/canvas height
+		// Queue sits above the results row so the two never collide
+		const queueY = (this.engine.canvas.height || 500) - 90;
 		const queueTitleId = this.id();
 		this.cmd('createLabel', queueTitleId, 'Queue: ', QUEUE_START_X - 10, queueY - 25);
 		this.step();
@@ -647,8 +690,6 @@ export default class BST extends Algorithm {
 		};
 
 		enqueue(this.root);
-		let text = 'Level-order: ';
-		let first = true;
 
 		while (queueNodes.length) {
 			const node = queueNodes.shift();
@@ -659,11 +700,9 @@ export default class BST extends Algorithm {
 			this.cmd('setForegroundColor', labelId, this.palette.success);
 			this.step();
 
-			text += (first ? '' : ', ') + node.data;
-			first = false;
-			this.cmd('setText', this.traversalLabelId, text);
 			this.cmd('delete', labelId);
 			queueLabelIds.forEach((id, i) => this.cmd('setPosition', id, QUEUE_START_X + i * QUEUE_SPACING, queueY));
+			this._appendResultBox(node.data); // grows the bottom array in real time
 			this.step();
 
 			this.unhighlight(`node-${node.id}`);
@@ -687,6 +726,7 @@ export default class BST extends Algorithm {
 		this.nodeMap.clear();
 		this.liveNodeIds.clear();
 		this.liveEdgeIds.clear();
+		this.resultBoxIds = [];
 		this.nextNodeId = 0;
 
 		const count = Math.floor(Math.random() * 6) + 6; // 6-11 nodes
@@ -723,6 +763,7 @@ export default class BST extends Algorithm {
 		this.nodeMap.clear();
 		this.liveNodeIds.clear();
 		this.liveEdgeIds.clear();
+		this.resultBoxIds = [];
 		this.nextNodeId = 0;
 
 		this.statusLabelId = this.id();

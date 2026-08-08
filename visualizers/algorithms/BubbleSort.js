@@ -10,7 +10,7 @@
 // of conditions and the following disclaimer in the documentation and/or other materials
 // provided with the distribution.
 //
-// THIS SOFTWARE IS PROVIDED BY David Galles ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ``AS IS'' AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
 // CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
@@ -25,6 +25,9 @@
 // or implied, of the University of San Francisco
 
 // visualizers/algorithms/BubbleSort.js
+// CS1332 optimized bubble sort: early-termination (swapped flag) + shrinking
+// bounds (each pass guarantees the last `end` elements are sorted, so the
+// inner loop's upper bound shrinks by 1 every pass).
 import Algorithm from './Algorithm.js';
 import { VisualizerRegistry } from '../VisualizerEngine.js';
 
@@ -33,6 +36,7 @@ const ARRAY_START_Y = 130;
 const MIN_ELEM = 44;
 const MAX_ELEM = 72;
 const MARGIN = 60;
+const COMPARE_BLUE = '#3b82f6';
 
 export default class BubbleSort extends Algorithm {
 	constructor(engine, controlsId) {
@@ -42,6 +46,7 @@ export default class BubbleSort extends Algorithm {
 		this.compCount = 0;
 		this.swapCount = 0;
 		this.arrayIds = [];
+		this.indexLabelIds = [];
 		this.elemSize = 60;
 		this.setupControls();
 	}
@@ -67,9 +72,13 @@ export default class BubbleSort extends Algorithm {
 			if (vals) listInput.value = vals;
 		});
 		this.addButton('Sort', () => {
-			const input = listInput.value.split(',').map(x => x.trim()).filter(x => x);
+			// Sanitize: tolerate trailing/doubled commas, stray whitespace, and
+			// non-numeric junk (e.g. "1,2,,3," or " 4 , 5 ,,6") without erroring.
+			const input = listInput.value.split(/,+/).map(x => x.trim()).filter(x => x);
 			if (!input.length) { this.shake(listInput); return; }
-			this.sort(input.map(Number).filter(x => !isNaN(x)));
+			const nums = input.map(Number).filter(x => !isNaN(x));
+			if (!nums.length) { this.shake(listInput); return; }
+			this.sort(nums);
 		});
 		this.addButton('Clear', () => this.clearAll());
 	}
@@ -84,6 +93,7 @@ export default class BubbleSort extends Algorithm {
 		this.hardReset();
 		this.arrayData = list.slice(0, MAX_SIZE);
 		this.arrayIds = [];
+		this.indexLabelIds = [];
 		this.compCount = 0;
 		this.swapCount = 0;
 		this.displayData = [...this.arrayData];
@@ -95,8 +105,7 @@ export default class BubbleSort extends Algorithm {
 		this.elemSize = Math.max(MIN_ELEM, Math.min(MAX_ELEM,
 			Math.floor((baselineWidth - MARGIN * 2) / this.arrayData.length)));
 		const neededWidth = MARGIN * 2 + this.arrayData.length * this.elemSize;
-		const canvas = this.engine.canvas;
-		canvas.width = Math.max(baselineWidth, neededWidth);
+		this.resizeCanvas(Math.max(baselineWidth, neededWidth), this.engine.canvas.height);
 		const startX = MARGIN + this.elemSize / 2;
 
 		for (let i = 0; i < this.arrayData.length; i++) {
@@ -104,19 +113,26 @@ export default class BubbleSort extends Algorithm {
 			this.arrayIds.push(id);
 			const x = startX + i * this.elemSize;
 			this.cmd('createRect', id, String(this.arrayData[i]), this.elemSize, this.elemSize, x, ARRAY_START_Y);
+
+			// 0-based index label below each cell (stays fixed — it labels the
+			// position, not the value, since swaps move values not slots)
+			const labelId = this.id();
+			this.cmd('createLabel', labelId, String(i), x, ARRAY_START_Y + this.elemSize / 2 + 18);
+			this.cmd('setForegroundColor', labelId, this.palette.muted);
+			this.indexLabelIds.push(labelId);
 		}
 		this.step();
 
 		let sorted = false;
-		let end = this.arrayData.length - 1;
+		let end = this.arrayData.length - 1; // shrinking upper bound
 
 		while (!sorted) {
-			sorted = true;
+			sorted = true; // early-termination flag
 			for (let i = 0; i < end; i++) {
 				this.compCount++;
-				// Only the two compared elements turn orange, only for this step
-				this.highlight(this.arrayIds[i], this.palette.accent);
-				this.highlight(this.arrayIds[i + 1], this.palette.accent);
+				// Compare: blue, only the two elements under comparison, only for this step
+				this.highlight(this.arrayIds[i], COMPARE_BLUE);
+				this.highlight(this.arrayIds[i + 1], COMPARE_BLUE);
 				this.step();
 
 				if (this.arrayData[i] > this.arrayData[i + 1]) {
@@ -124,13 +140,13 @@ export default class BubbleSort extends Algorithm {
 					sorted = false;
 				}
 
-				// Always fully reset color after comparing (fixes lingering orange text)
+				// Always fully reset color after comparing (fixes lingering highlight color)
 				this.unhighlight(this.arrayIds[i]);
 				this.unhighlight(this.arrayIds[i + 1]);
 				this.resetColor(this.arrayIds[i]);
 				this.resetColor(this.arrayIds[i + 1]);
 			}
-			end--;
+			end--; // shrink bound: last element of this pass is now guaranteed sorted
 		}
 
 		// Mark as sorted: green background, white text for contrast
@@ -149,6 +165,7 @@ export default class BubbleSort extends Algorithm {
 
 		this.cmd('setText', this.arrayIds[i], String(this.displayData[i]));
 		this.cmd('setText', this.arrayIds[j], String(this.displayData[j]));
+		// Swap: red/orange
 		this.cmd('setForegroundColor', this.arrayIds[i], this.palette.danger);
 		this.cmd('setForegroundColor', this.arrayIds[j], this.palette.danger);
 		this.step();
@@ -159,6 +176,7 @@ export default class BubbleSort extends Algorithm {
 		this.hardReset();
 		this.arrayData = [];
 		this.arrayIds = [];
+		this.indexLabelIds = [];
 		this.compCount = 0;
 		this.swapCount = 0;
 		this.run();

@@ -533,6 +533,15 @@ const ALGO_INFO = {
       ],
     },
   },
+  'arraylist': {
+    label: 'ArrayList',
+    about: 'A dynamic array that resizes (doubles capacity) when full. Supports O(1) indexed access, O(n) insert/remove at arbitrary positions, and amortized O(1) add-to-end.',
+    bigO: { best: 'O(1)', average: 'O(n)', worst: 'O(n)', space: 'O(n)' },
+    pseudocode: {
+      english: ['to add at index: shift elements right of index over by one', '  insert value at index', '  if full, double capacity first'],
+      code: ['add(val, i):', '  if size == capacity: resize(capacity * 2)', '  for (j = size; j > i; j--) data[j] = data[j-1]', '  data[i] = val; size++'],
+    },
+  },
 };
 
 // ---- Visualizer Registry & Loader ----
