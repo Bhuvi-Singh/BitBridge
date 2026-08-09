@@ -19,25 +19,25 @@ Instead of simply reading about an algorithm or data structure, students can lea
 ### Core Features
 
 * **Structured Learning Paths**
-  Organized AP CSA and DSA curricula with units, lessons, and progress tracking.
+  * Organized AP CSA and DSA curricula with units, lessons, and progress tracking.
 
 * **Interactive Algorithm Visualizers**
-  Explore algorithms and data structures step-by-step through interactive visualizations.
+  * Explore algorithms and data structures step-by-step through interactive visualizations.
 
 * **Gamification**
-  Earn XP, level up, maintain learning streaks, and unlock achievements.
+  * Earn XP, level up, maintain learning streaks, and unlock achievements.
 
 * **Customizable Profile**
-  Personalize an avatar and unlock additional customization through progress.
+  * Personalize an avatar and unlock additional customization through progress.
 
 * **Progress Tracking**
-  Track completed lessons, XP, streaks, achievements, and overall course progress.
+  * Track completed lessons, XP, streaks, achievements, and overall course progress.
 
 * **Searchable Course Map**
-  Quickly find lessons and navigate through the curriculum.
+  * Quickly find lessons and navigate through the curriculum.
 
 * **Local Progress Storage**
-  Progress is saved directly in the browser, with support for exporting and importing progress.
+  * Progress is saved directly in the browser, with support for exporting and importing progress.
 
 ---
 
