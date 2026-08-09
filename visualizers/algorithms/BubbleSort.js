@@ -55,13 +55,13 @@ export default class BubbleSort extends Algorithm {
 		const listInput = this.addTextInput('Array', 'e.g., 5,2,8,1,9');
 		this.addDropdown('Example', [
 			['', 'Load Example...'],
-			['sorted', 'Sorted: 1,2,3,4,5'],
-			['reverse', 'Reverse: 5,4,3,2,1'],
+			['sorted', 'Sorted: 1, 2, 3, 4, 5, 6'],
+			['reverse', 'Reverse: 6, 5, 4, 3, 2, 1'],
 			['random', 'Random'],
 		], (sel) => {
 			let vals = '';
-			if (sel === 'sorted') vals = '1,2,3,4,5,6,7,8,9';
-			else if (sel === 'reverse') vals = '9,8,7,6,5,4,3,2,1';
+			if (sel === 'sorted') vals = '1,2,3,4,5,6';
+			else if (sel === 'reverse') vals = '6,5,4,3,2,1';
 			else if (sel === 'random') {
 				const sz = Math.floor(Math.random() * 9) + 5;
 				for (let i = 0; i < sz; i++) {
