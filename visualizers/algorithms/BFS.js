@@ -24,395 +24,166 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the University of San Francisco
 
-import {
-	addControlToAlgorithmBar,
-	addDivisorToAlgorithmBar,
-	addLabelToAlgorithmBar,
-} from './Algorithm.js';
-import { BFS_DFS_ADJ_LIST } from './util/GraphValues';
+// visualizers/algorithms/BFS.js
+// Breadth-first search, ported from the legacy USF/csvistool architecture to
+// BitBridge's VisualizerEngine (this.cmd(...) command-queue + Graph.js base).
+//
+// Fixes vs. the legacy version:
+//  1. Queue "gap" bug: previously queueID[0] jumped to the CURRENT_VERTEX slot
+//     immediately, but the shift() + relayout of remaining queue labels didn't
+//     happen until the end of the neighbor loop — leaving a visibly empty slot
+//     at QUEUE_START_Y while neighbors were being explored. Fixed by doing the
+//     shift() and relayout in the SAME step as the move-to-current animation.
+//  2. Disconnected graphs: previously just said "Queue is empty, done" with no
+//     indication unvisited vertices existed. Now explicitly lists them.
+//  3. No hardcoded pseudocode-line highlight() calls tied to pseudocode.json
+//     line indices — that whole mechanism doesn't exist in VisualizerEngine.
+//     Pseudocode display instead goes through the same ALGO_INFO panel path
+//     BubbleSort/BST/ArrayList already use (see app.js ALGO_INFO['bfs']).
 import Graph from './Graph.js';
-import { act } from '../anim/AnimationMain';
-import pseudocodeText from '../pseudocode.json';
-
-const BFS_QUEUE_HEAD_COLOR = '#0000FF';
-const VISITED_COLOR = '#99CCFF';
-
-const INFO_MSG_X = 25;
-const INFO_MSG_Y = 15;
-
-const LIST_START_X = 30;
-const LIST_START_Y = 65;
-const LIST_SPACING = 20;
+import { VisualizerRegistry } from '../VisualizerEngine.js';
 
 const VISITED_START_X = 30;
-const VISITED_START_Y = 115;
-
-const CURRENT_VERTEX_LABEL_X = 25;
-const CURRENT_VERTEX_LABEL_Y = 140;
-const CURRENT_VERTEX_X = 115;
-const CURRENT_VERTEX_Y = 146;
+const VISITED_START_Y = 0; // set relative to canvas bottom at render time
+const LIST_SPACING = 22;
 
 const QUEUE_START_X = 30;
-const QUEUE_START_Y = 190;
-const QUEUE_SPACING = 20;
+const QUEUE_SPACING = 50;
+
+const CURRENT_VERTEX_LABEL_TEXT = 'Current: ';
 
 export default class BFS extends Graph {
-	constructor(am, w, h) {
-		super(am, w, h, BFS_DFS_ADJ_LIST);
-		this.addControls();
+	constructor(engine, controlsId) {
+		super(engine, controlsId);
 	}
 
 	addControls() {
-		addLabelToAlgorithmBar('Start vertex: ');
-		this.startField = addControlToAlgorithmBar('Text', '');
-		this.startField.style.textAlign = 'center';
-		this.startField.onkeydown = this.returnSubmit(
-			this.startField,
-			this.startCallback.bind(this),
-			1,
-			false,
-		);
-		this.startField.size = 2;
-		this.controls.push(this.startField);
-
-		this.startButton = addControlToAlgorithmBar('Button', 'Run');
-		this.startButton.onclick = this.startCallback.bind(this);
-		this.controls.push(this.startButton);
-
-		addDivisorToAlgorithmBar();
-
-		// this.startButton1 = addControlToAlgorithmBar('Button', 'Create Graph');
-		// this.startButton1.onclick = this.openCreateGraphModal.bind(this);
-		// this.controls.push(this.startButton1);
-
+		this.startGroup();
+		this.startField = this.addTextInputInline('Start vertex (e.g. A)');
+		this.addButtonInline('Run BFS', () => this.startCallback());
 		super.addControls();
-	}
 
-	setup(adjMatrix) {
-		super.setup(adjMatrix);
-		this.commands = [];
-		this.messageID = [];
-
-		this.visited = [];
-
-		this.queueID = [];
-		this.listID = [];
-		this.visitedID = [];
-
-		this.infoLabelID = this.nextIndex++;
-		this.cmd(act.createLabel, this.infoLabelID, '', INFO_MSG_X, INFO_MSG_Y, 0);
-
-		this.pseudocode = pseudocodeText.BFS;
-
-		this.cmd(
-			act.createLabel,
-			this.nextIndex++,
-			'Visited Set:',
-			VISITED_START_X - 5,
-			VISITED_START_Y - 25,
-			0,
-		);
-		this.cmd(
-			act.createLabel,
-			this.nextIndex++,
-			'List:',
-			LIST_START_X - 5,
-			LIST_START_Y - 25,
-			0,
-		);
-		this.cmd(
-			act.createLabel,
-			this.nextIndex++,
-			'Current vertex:',
-			CURRENT_VERTEX_LABEL_X,
-			CURRENT_VERTEX_LABEL_Y,
-			0,
-		);
-		this.cmd(
-			act.createLabel,
-			this.nextIndex++,
-			'Queue:',
-			QUEUE_START_X - 5,
-			QUEUE_START_Y - 25,
-			0,
-		);
-
-		this.animationManager.setAllLayers([0, 32, this.currentLayer]);
-		this.animationManager.startNewAnimation(this.commands);
-		this.animationManager.skipForward();
-		this.animationManager.clearHistory();
-		this.lastIndex = this.nextIndex;
-	}
-
-	reset() {
-		this.nextIndex = this.lastIndex;
-		this.listID = [];
-		this.messageID = [];
-		this.visitedID = [];
+		this.startGroup(true);
+		this.visitedTitleId = null;
+		this.queueTitleId = null;
+		this.currentLabelId = null;
 	}
 
 	startCallback() {
-		if (this.startField.value !== '') {
-			let startValue = this.startField.value;
-			this.startField.value = '';
-			startValue = startValue.toUpperCase();
-			this.implementAction(this.doBFS.bind(this), startValue);
-		} else {
-			this.shake(this.startButton);
-		}
+		const raw = this.startField.value.trim();
+		if (!raw) { this.shake(this.startField); return; }
+		this.startField.value = '';
+		this.implementAction(this.doBFS.bind(this), raw.toUpperCase());
+	}
+
+	// Persistent row labels (Visited / Current / Queue) — created once per run.
+	_setupRowLabels() {
+		const ch = this.engine.canvas.height || 500;
+		const visitedY = ch - 90;
+		const currentY = ch - 60;
+		const queueY = ch - 30;
+
+		this.visitedTitleId = this.id();
+		this.cmd('createLabel', this.visitedTitleId, 'Visited: ', VISITED_START_X - 10, visitedY);
+		this.currentLabelId = this.id();
+		this.cmd('createLabel', this.currentLabelId, CURRENT_VERTEX_LABEL_TEXT, QUEUE_START_X - 10, currentY);
+		this.queueTitleId = this.id();
+		this.cmd('createLabel', this.queueTitleId, 'Queue: ', QUEUE_START_X - 10, queueY);
+
+		this._visitedY = visitedY;
+		this._currentY = currentY;
+		this._queueY = queueY;
 	}
 
 	doBFS(startValue) {
-		this.commands = [];
-		let vertex = startValue.charCodeAt(0) - 65;
-
-		// User input validation
-		if (vertex < 0 || vertex >= this.size) {
-			this.shake(this.startButton);
-			this.cmd(act.setText, this.infoLabelID, startValue + ' is not a vertex in the graph');
-			return this.commands;
+		const startVertex = startValue.charCodeAt(0) - 65;
+		if (startVertex < 0 || startVertex >= this.size) {
+			this._setStatus(`"${startValue}" is not a vertex in this graph`);
+			this.shake(this.startField);
+			this.step();
+			return;
 		}
-
-		this.clear();
-
-		this.queue = [];
-		this.queueID = [];
-		this.listID = [];
-		this.visitedID = [];
 
 		this.rebuildEdges();
+		this._setupRowLabels();
 
-		this.cmd(
-			act.setText,
-			this.infoLabelID,
-			'Enqueueing ' + this.toStr(vertex) + ' and adding to visited set',
-		);
-		this.visited[vertex] = true;
-		this.visitedID.push(this.nextIndex);
-		this.cmd(
-			act.createLabel,
-			this.nextIndex++,
-			this.toStr(vertex),
-			VISITED_START_X,
-			VISITED_START_Y,
-		);
-		this.cmd(act.setBackgroundColor, this.circleID[vertex], VISITED_COLOR);
-		this.queue.push(vertex);
-		this.queueID.push(this.nextIndex);
-		this.cmd(
-			act.createLabel,
-			this.nextIndex++,
-			this.toStr(vertex),
-			QUEUE_START_X,
-			QUEUE_START_Y,
-		);
-		this.highlight(1, 0, 'run');
-		this.highlight(2, 0, 'run');
-		this.highlight(3, 0, 'run');
-		this.highlight(4, 0, 'run');
-		this.highlight(5, 0, 'run');
-		this.cmd(act.step);
-		this.unhighlight(1, 0, 'run');
-		this.unhighlight(2, 0, 'run');
-		this.unhighlight(3, 0, 'run');
-		this.unhighlight(4, 0, 'run');
-		this.unhighlight(5, 0, 'run');
-		while (this.queue.length > 0 && this.listID.length < this.size) {
-			vertex = this.queue.shift();
-			this.highlight(6, 0, 'run');
-			this.highlight(7, 0, 'run');
-			this.cmd(
-				act.setText,
-				this.infoLabelID,
-				'Dequeueing ' + this.toStr(vertex) + ' and adding to list',
-			);
+		const visited = new Array(this.size).fill(false);
+		const visitedLabelIds = [];
+		const queue = [];
+		const queueLabelIds = [];
 
-			this.cmd(act.setTextColor, this.queueID[0], BFS_QUEUE_HEAD_COLOR);
-			this.cmd(act.move, this.queueID[0], CURRENT_VERTEX_X, CURRENT_VERTEX_Y);
-			for (let i = 1; i < this.queueID.length; i++) {
-				this.cmd(
-					act.move,
-					this.queueID[i],
-					QUEUE_START_X,
-					QUEUE_START_Y + (i - 1) * QUEUE_SPACING,
-				);
-			}
+		const enqueue = (v) => {
+			queue.push(v);
+			const id = this.id();
+			this.cmd('createLabel', id, this.toStr(v), QUEUE_START_X + (queue.length - 1) * QUEUE_SPACING, this._queueY);
+			queueLabelIds.push(id);
+		};
+		const markVisited = (v) => {
+			visited[v] = true;
+			const id = this.id();
+			this.cmd('createLabel', id, this.toStr(v), VISITED_START_X + visitedLabelIds.length * LIST_SPACING, this._visitedY);
+			visitedLabelIds.push(id);
+			this.cmd('setBackgroundColor', this.circleID[v], this.palette.success);
+			this.cmd('setForegroundColor', this.circleID[v], '#ffffff');
+		};
 
-			this.listID.push(this.nextIndex);
-			this.cmd(
-				act.createLabel,
-				this.nextIndex++,
-				this.toStr(vertex),
-				LIST_START_X + (this.listID.length - 1) * LIST_SPACING,
-				LIST_START_Y,
-			);
+		this._setStatus(`Enqueueing ${this.toStr(startVertex)} and marking visited`);
+		markVisited(startVertex);
+		enqueue(startVertex);
+		this.step();
 
+		while (queue.length > 0) {
+			// FIX (bug #1): shift the queue's underlying array AND relayout the
+			// remaining labels in the same step as moving the head to "Current" —
+			// no more one-step window where slot 0 is visually empty.
+			const vertex = queue.shift();
+			const headLabelId = queueLabelIds.shift();
+
+			this._setStatus(`Dequeuing ${this.toStr(vertex)}`);
+			this.cmd('setText', this.currentLabelId, CURRENT_VERTEX_LABEL_TEXT + this.toStr(vertex));
+			this.cmd('delete', headLabelId);
+			queueLabelIds.forEach((id, i) => this.cmd('setPosition', id, QUEUE_START_X + i * QUEUE_SPACING, this._queueY));
 			this.visitVertex(vertex);
-			this.cmd(act.step);
-			this.unhighlight(7, 0, 'run');
-			this.highlight(8, 0, 'run');
-			this.cmd(act.step);
-			this.unhighlight(8, 0, 'run');
+			this.step();
 
 			for (let neighbor = 0; neighbor < this.size; neighbor++) {
-				if (this.adj_matrix[vertex][neighbor] > 0) {
-					this.highlightEdge(vertex, neighbor, 1);
-					this.highlight(9, 0, 'run');
-					this.cmd(act.step);
-					this.highlight(10, 0, 'run');
-					this.cmd(act.step);
-					if (!this.visited[neighbor]) {
-						this.unhighlight(10, 0, 'run');
-						this.highlight(11, 0, 'run');
-						this.highlight(12, 0, 'run');
-						this.visited[neighbor] = true;
-						this.visitedID.push(this.nextIndex);
-						this.cmd(
-							act.setText,
-							this.infoLabelID,
-							this.toStr(neighbor) +
-								' has not yet been visited, enqueueing and adding to visited set',
-						);
-						this.cmd(
-							act.createLabel,
-							this.nextIndex++,
-							this.toStr(neighbor),
-							VISITED_START_X + (this.visitedID.length - 1) * LIST_SPACING,
-							VISITED_START_Y,
-						);
-						this.cmd(act.setBackgroundColor, this.circleID[neighbor], VISITED_COLOR);
-						this.queue.push(neighbor);
-						this.queueID.push(this.nextIndex);
-						this.cmd(
-							act.createLabel,
-							this.nextIndex++,
-							this.toStr(neighbor),
-							QUEUE_START_X,
-							QUEUE_START_Y + (this.queue.length - 1) * QUEUE_SPACING,
-						);
-					} else {
-						this.cmd(
-							act.setText,
-							this.infoLabelID,
-							this.toStr(neighbor) + ' has already been visited, skipping',
-						);
-					}
-					this.unhighlight(10, 0, 'run');
-					this.cmd(act.step);
-					this.unhighlight(11, 0, 'run');
-					this.unhighlight(12, 0, 'run');
-					this.highlightEdge(vertex, neighbor, 0);
+				if (this.adj_matrix[vertex][neighbor] <= 0) continue;
+
+				this.highlightEdge(vertex, neighbor, true);
+				this._setStatus(`Checking neighbor ${this.toStr(neighbor)} of ${this.toStr(vertex)}`);
+				this.step();
+
+				if (!visited[neighbor]) {
+					this._setStatus(`${this.toStr(neighbor)} not yet visited — enqueueing`);
+					markVisited(neighbor);
+					enqueue(neighbor);
+					this.step();
+				} else {
+					this._setStatus(`${this.toStr(neighbor)} already visited — skipping`);
+					this.step();
 				}
-				this.unhighlight(9, 0, 'run');
+				this.highlightEdge(vertex, neighbor, false);
 			}
-			this.unhighlight(8, 0, 'run');
 
-			this.cmd(act.delete, this.queueID.shift());
-
-			this.leaveVertex();
+			this.leaveVertex(vertex);
+			this.cmd('setBackgroundColor', this.circleID[vertex], this.palette.success);
+			this.cmd('setForegroundColor', this.circleID[vertex], '#ffffff');
 		}
-		this.unhighlight(6, 0, 'run');
 
-		if (this.queue.length > 0) {
-			this.cmd(act.setText, this.infoLabelID, 'All vertices have been visited, done');
+		this.cmd('setText', this.currentLabelId, CURRENT_VERTEX_LABEL_TEXT);
+
+		// FIX (bug #2): explicitly call out unreachable vertices instead of a
+		// silent/ambiguous "done".
+		const unreached = [];
+		for (let i = 0; i < this.size; i++) if (!visited[i]) unreached.push(this.toStr(i));
+
+		if (unreached.length === 0) {
+			this._setStatus('All vertices visited — BFS complete');
 		} else {
-			this.cmd(act.setText, this.infoLabelID, 'Queue is empty, done');
+			this._setStatus(`Queue is empty. Unreachable vertices remaining: ${unreached.join(', ')}`);
 		}
-
-		return this.commands;
+		this.step();
 	}
-
-	clear() {
-		for (let i = 0; i < this.size; i++) {
-			this.cmd(act.setBackgroundColor, this.circleID[i], '#FFFFFF');
-			this.visited[i] = false;
-		}
-		for (let i = 0; i < this.listID.length; i++) {
-			this.cmd(act.delete, this.listID[i]);
-		}
-		for (let i = 0; i < this.visitedID.length; i++) {
-			this.cmd(act.delete, this.visitedID[i]);
-		}
-		if (this.messageID != null) {
-			for (let i = 0; i < this.messageID.length; i++) {
-				this.cmd(act.delete, this.messageID[i]);
-			}
-		}
-		this.messageID = [];
-	}
-
-	// Add this new method in the class
-	/*openCreateGraphModal() {
-  // Create modal container
-  const modal = document.createElement('div');
-  modal.style.position = 'fixed';
-  modal.style.top = '50%';
-  modal.style.left = '50%';
-  modal.style.transform = 'translate(-50%, -50%)';
-  modal.style.zIndex = '1000';
-  modal.style.width = '80%';
-  modal.style.height = '80%';
-  modal.style.backgroundColor = '#fff';
-  modal.style.boxShadow = '0px 4px 6px rgba(0, 0, 0, 0.1)';
-  modal.style.padding = '20px';
-  modal.style.overflow = 'hidden';
-	
-  // Create iframe for the webpage
-  const iframe = document.createElement('iframe');
-  iframe.src = '../CreateGraph'; // Path to CreateGraph page
-  iframe.style.width = '100%';
-  iframe.style.height = '90%';
-  iframe.style.border = 'none';
-
-  // Add iframe to modal
-  modal.appendChild(iframe);
-
-  // Create a close button
-  const closeButton = document.createElement('button');
-  closeButton.innerText = 'Close';
-  closeButton.style.position = 'absolute';
-  closeButton.style.top = '10px';
-  closeButton.style.right = '10px';
-  closeButton.style.backgroundColor = '#f44336';
-  closeButton.style.color = '#fff';
-  closeButton.style.border = 'none';
-  closeButton.style.padding = '10px';
-  closeButton.style.cursor = 'pointer';
-  closeButton.onclick = () => {
-    document.body.removeChild(modal);
-  };
-	
-  // Add close button to modal
-  modal.appendChild(closeButton);
-
-  // Append modal to the document body
-  document.body.appendChild(modal);
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (iframe) {
-      iframe.addEventListener('load', () => {
-        try {
-          const iframeDocument = iframe.contentWindow.document;
-          const runButton = iframeDocument.querySelector('input[type="Button"][value="Run"]');
-          if (runButton) {
-            runButton.addEventListener('click', (event) => {
-              event.preventDefault(); // Prevent default behavior (if any)
-              //const modal = document.querySelector('#modal'); // Replace with your modal's selector
-              if (modal) {
-                modal.style.display = 'none'; // Hide the modal
-              }
-              console.log('Run button clicked. Modal closed.');
-            });
-          } else {
-            console.warn('Run button not found in iframe.');
-          }
-        } catch (error) {
-          console.error('Error accessing iframe content:', error);
-        }
-      });
-    } else {
-      console.error('Iframe not found.');
-    }
-  });
-}*/
 }
+
+VisualizerRegistry.register('bfs', BFS);
