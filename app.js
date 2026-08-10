@@ -849,12 +849,12 @@ function exportProgressData() {
     unlockedAchievements: progress.unlockedAchievements
   };
   const json = JSON.stringify(payload);
-  return `CODEPATH2:${btoa(unescape(encodeURIComponent(json)))}`;
+  return `BITBRIDGE2:${btoa(unescape(encodeURIComponent(json)))}`;
 }
 
 function importProgressData(exportString) {
-  const prefixV2 = 'CODEPATH2:';
-  const prefixV1 = 'CODEPATH1:'; // legacy support
+  const prefixV2 = 'BITBRIDGE2:';
+  const prefixV1 = 'BITBRIDGE1:'; // legacy support
 
   let data;
   if (exportString.startsWith(prefixV2)) {
@@ -1411,6 +1411,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   populateCalendarMonthSelect();
+  renderCalendar();
   document.getElementById('calendarPrevBtn')?.addEventListener('click', () => {
     calendarView = clampCalendarView(calendarView.year, calendarView.month - 1);
     renderCalendar();

@@ -1118,6 +1118,7 @@ dialog.modal::backdrop {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
@@ -1299,13 +1300,20 @@ dialog.modal::backdrop {
 }
 
 .calendar-month-select {
-  padding: 0.4rem 0.6rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 0.4rem 2.25rem 0.4rem 0.6rem;
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-weight: 700;
   font-size: 0.8rem;
   color: var(--text-main);
-  background: var(--bg-card);
+  background-color: var(--bg-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.9rem;
   cursor: pointer;
 }
 
@@ -1400,12 +1408,19 @@ dialog.modal::backdrop {
 }
 
 .viz-algo-selector {
-  padding: 0.6rem 0.875rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 0.6rem 2.5rem 0.6rem 0.875rem;
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-md);
   font-weight: 700;
   font-size: 0.9rem;
-  background: var(--bg-card);
+  background-color: var(--bg-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1rem;
   color: var(--text-main);
   cursor: pointer;
   min-width: 220px;
@@ -1456,11 +1471,18 @@ dialog.modal::backdrop {
 
 .algo-text-input,
 .visualizer-algo-controls select {
-  padding: 0.6rem 0.75rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 0.6rem 2.5rem 0.6rem 0.75rem;
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
-  background: var(--bg-card);
+  background-color: var(--bg-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.9rem;
   color: var(--text-main);
 }
 
