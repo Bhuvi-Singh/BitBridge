@@ -2,9 +2,9 @@
 
 ### Learn. Build. Master.
 
-**BitBridge** is a free, gamified computer science learning platform designed to make programming and computer science concepts more interactive, visual, and approachable.
+**BitBridge** is a free, gamified computer science learning platform designed to make programming and computer science concepts more interactive, visual, and approachable. The purpose of this project is to provide everyone with a free and accessible way to learn the basics of Computer Science, whether you are interested in the field or just want to learn some skills. This project is still developing and is open to different requests and feedback.
 
-The platform currently focuses on **AP Computer Science A** and **Data Structures & Algorithms**, with plans to expand into cybersecurity and additional areas of computer science.
+The platform currently focuses on **AP Computer Science A** and **Data Structures & Algorithms**, with plans to expand into (AP) cybersecurity and additional areas of computer science.
 
 **[Launch BitBridge](https://bhuvi-singh.github.io/BitBridge/)**
 
@@ -68,7 +68,7 @@ A complementary DSA track introduces concepts including:
 
 ### Future: (AP) Cybersecurity
 
-After the AP CSA curriculum is complete, BitBridge will expand into a dedicated cybersecurity learning track covering foundational cybersecurity concepts, networking, cryptography, security, and interactive challenges.
+After the AP CSA curriculum is complete, BitBridge will expand into a dedicated (AP) cybersecurity learning track covering foundational cybersecurity concepts, networking, cryptography, security, and interactive challenges.
 
 ---
 
@@ -148,10 +148,10 @@ CSVisTool demonstrated the educational value of interactively visualizing algori
 
 **Bhuvi Singh**
 
-BitBridge is an independent project focused on making computer science education more interactive, accessible, and engaging.
+BitBridge is an independent project focused on making computer science education more interactive, accessible, and engaging.  I have many goals with this project but I am a also the sole developer of this project, and am solely doing this project for fun and to help others. Feel free to contact me if you have any questions, comments, or concerns.
 
 ---
 
 ## License
 
-No open-source license has been added yet.
+MIT License.
