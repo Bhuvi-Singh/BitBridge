@@ -77,17 +77,20 @@ After the AP CSA curriculum is complete, BitBridge will expand into a dedicated 
 ```text
 BitBridge/
 │
-├── index.html              # Main application
-├── app.js                  # Application logic
-├── styles.css              # UI and styling
-├── syllabus-data.js        # Course and curriculum data
+├── index.html              # Main single-page application entry
+├── app.js                  # Application routing, state, and event handling
+├── lesson-renderer.js      # Dynamic lesson content renderer & tab manager
+├── styles.css              # Custom styling, medium badges, and responsive embeds
+├── syllabus-data.js        # Curriculum data and lesson content definitions
 │
-├── lessons/                # Lesson content
+├── lessons/                # Markdown lesson articles
+│   ├── apcsa-1-1.md        # Example lesson file
+│   └── ...                 # Additional lesson content files
 │
-└── visualizers/
-    ├── VisualizerEngine.js # Visualization engine
-    ├── visualizer-init.js  # Visualizer setup
-    └── algorithms/         # Algorithm visualizers
+└── visualizers/            # Interactive algorithm visualizations
+    ├── VisualizerEngine.js # Core visualization animation engine
+    ├── visualizer-init.js  # Registry and initialization script
+    └── algorithms/         # Individual visualizer modules (ArrayList, BST, etc.)
 ```
 
 The project is built as a lightweight client-side web application using **HTML, CSS, and JavaScript**, with no backend currently required.
