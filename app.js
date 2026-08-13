@@ -1,3 +1,5 @@
+import { loadLesson, initLessonTabs } from './lessonRenderer.js';
+
 // Heroicons Inline SVG Definitions Map
 const ICONS = {
   home: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>`,
@@ -219,6 +221,19 @@ const DEFAULT_CHARACTER = {
   jewelry: 'jewelry-none',
   prop: 'prop-none'
 };
+
+// Convert mediums abbreviation code to display label
+function getMediumLabel(code) {
+  const map = {
+    'A': 'Article',
+    'V': 'Video',
+    'I': 'Interactive',
+    'S': 'Slideshow',
+    'MCQ': 'MCQ',
+    'FRQ': 'FRQ'
+  };
+  return map[code] || code;
+}
 
 function findAvatarPart(layer, id) {
   const list = AVATAR_PARTS[layer];
@@ -1155,7 +1170,9 @@ function renderCourseMap() {
           statusClass = 'in-progress';
           statusIcon = `<span class="lesson-status-icon">${ICONS.play}</span>`;
         }
-
+        const mediumsHTML = (lesson.mediums?.learn || [])
+          .map(code => `<span class="lesson-medium" data-medium="${code}">${getMediumLabel(code)}</span>`)
+          .join('');
         unitsHtml += `
           <div class="lesson-card ${statusClass}" data-lesson-id="${lesson.id}">
             <div class="lesson-card-header">
@@ -1163,11 +1180,14 @@ function renderCourseMap() {
               ${statusIcon}
             </div>
             <div class="lesson-card-meta">
-              <span class="lesson-meta-item">${ICONS.clock} 15m</span>
-              <span class="lesson-meta-item">${ICONS.bookOpen} Reading</span>
+           ${mediumsHTML || '<span class="lesson-medium" data-medium="A">Article</span>'}
             </div>
           </div>
         `;
+        
+
+        // Then use this in your card innerHTML:
+        // 
       });
 
       unitsHtml += `
@@ -1189,6 +1209,69 @@ function toggleUnitCollapse(headerEl) {
     unitCard.classList.toggle('collapsed');
   }
 }
+
+async function openLesson(lessonId) {
+  // Switch to lesson view
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+  const lessonView = document.getElementById('view-lesson');
+  if (lessonView) lessonView.classList.add('active');
+
+  const titleEl = document.getElementById('lessonViewTitle');
+  const numberEl = document.getElementById('lessonViewNumber');
+  const bodyEl = document.getElementById('lessonBody');
+  const completeBtn = document.getElementById('lessonMarkCompleteBtn');
+  const completeLabel = document.getElementById('lessonMarkCompleteLabel');
+
+  titleEl.textContent = 'Loading lesson…';
+  numberEl.textContent = '';
+
+  const lesson = await loadLesson(lessonId, bodyEl);
+  if (!lesson) return;
+
+  titleEl.textContent = lesson.title;
+  numberEl.textContent = `Lesson ${lesson.number}`;
+
+  // CRITICAL: Initialize tabs for hybrid lessons
+  initLessonTabs(bodyEl);
+
+  // Save progress
+  if (typeof progress !== 'undefined') {
+    progress.currentLessonId = lessonId;
+    saveProgress(progress);
+  }
+
+  // Handle mark complete
+  const isCompleted = progress?.completedLessons?.includes(lessonId);
+  completeLabel.textContent = isCompleted ? 'Completed' : 'Mark Complete';
+  completeBtn.classList.toggle('completed', isCompleted);
+  completeBtn.disabled = isCompleted;
+
+  completeBtn.onclick = () => {
+    if (progress.completedLessons.includes(lessonId)) return;
+    progress.completedLessons.push(lessonId);
+    addXp(10);
+    completeLabel.textContent = 'Completed';
+    completeBtn.classList.add('completed');
+    completeBtn.disabled = true;
+  };
+}
+
+// Add back button handler
+document.getElementById('lessonBackBtn')?.addEventListener('click', () => {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+  const courseMap = document.getElementById('view-course-map');
+  if (courseMap) courseMap.classList.add('active');
+});
+
+// Delegate: lesson card clicks
+document.addEventListener('click', (e) => {
+  const card = e.target.closest('.lesson-card[data-lesson-id]');
+  if (card && !e.target.closest('[data-algo]')) {
+    openLesson(card.dataset.lessonId);
+  }
+});
 
 // --- SEARCH FILTER & COUNTER ---
 function applySearchFilter(query) {

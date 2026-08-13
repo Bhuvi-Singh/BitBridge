@@ -370,6 +370,37 @@
       </div>
     </div>
 
+    <div class="view-content" id="view-lesson">
+      <div class="dashboard-section lesson-view-section">
+        <div class="lesson-view-header">
+          <button class="btn btn-secondary btn-sm" id="lessonBackBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+            <span>Back to Course Map</span>
+          </button>
+          <div class="lesson-view-meta">
+            <span class="lesson-view-number" id="lessonViewNumber"></span>
+            <h1 class="lesson-view-title" id="lessonViewTitle">Loading lesson…</h1>
+          </div>
+        </div>
+
+        <div class="lesson-body" id="lessonBody">
+          <p class="lesson-paragraph">Loading lesson…</p>
+        </div>
+
+        <div class="lesson-view-footer">
+          <button class="btn btn-primary" id="lessonMarkCompleteBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            <span id="lessonMarkCompleteLabel">Mark Complete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+
   </main>
 
   <dialog class="modal" id="characterModal" aria-labelledby="characterModalTitle">
@@ -409,6 +440,7 @@
 
   <script src="syllabus-data.js"></script>
   <script type="module" src="visualizers/visualizer-init.js"></script>
+  <script type="module" src="lessonRenderer.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 
