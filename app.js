@@ -1241,19 +1241,27 @@ async function openLesson(lessonId) {
     saveProgress(progress);
   }
 
-  // Handle mark complete
-  const isCompleted = progress?.completedLessons?.includes(lessonId);
-  completeLabel.textContent = isCompleted ? 'Completed' : 'Mark Complete';
-  completeBtn.classList.toggle('completed', isCompleted);
-  completeBtn.disabled = isCompleted;
+  // Handle mark complete (toggleable)
+  const syncCompleteButton = () => {
+    const done = progress.completedLessons.includes(lessonId);
+    completeLabel.textContent = done ? 'Completed ✓ (click to undo)' : 'Mark Complete';
+    completeBtn.classList.toggle('completed', done);
+    completeBtn.disabled = false; // never lock it — always toggleable
+  };
+  syncCompleteButton();
 
   completeBtn.onclick = () => {
-    if (progress.completedLessons.includes(lessonId)) return;
-    progress.completedLessons.push(lessonId);
-    addXp(10);
-    completeLabel.textContent = 'Completed';
-    completeBtn.classList.add('completed');
-    completeBtn.disabled = true;
+    const idx = progress.completedLessons.indexOf(lessonId);
+    if (idx === -1) {
+      progress.completedLessons.push(lessonId);
+      addXp(10);
+    } else {
+      progress.completedLessons.splice(idx, 1);
+      saveProgress(progress);
+      render();
+    }
+    syncCompleteButton();
+    renderCourseMap();
   };
 }
 
