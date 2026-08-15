@@ -830,7 +830,7 @@ function loadProgress() {
 
 function addXp(amount) {
   const oldLevel = calculateLevel(progress.xp).level;
-  progress.xp += amount;
+  progress.xp = Math.max(0, progress.xp + amount);
   const newLevel = calculateLevel(progress.xp).level;
 
   if (newLevel > oldLevel) {
@@ -1305,8 +1305,7 @@ async function openLesson(lessonId) {
       addXp(10);
     } else {
       progress.completedLessons.splice(idx, 1);
-      saveProgress(progress);
-      render();
+      addXp(-10);
     }
     syncCompleteButton();
     renderCourseMap();
