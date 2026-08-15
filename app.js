@@ -723,7 +723,8 @@ const DEFAULT_PROGRESS = {
   completedLessons: [],
   currentLessonId: null,
   achievementFlags: {},
-  unlockedAchievements: []
+  unlockedAchievements: [],
+  lastActivityDate: null
 };
 
 function getLessonIdsForUnit(track, unitNumber) {
@@ -819,6 +820,7 @@ function loadProgress() {
     if (merged.streakFreezes === undefined) merged.streakFreezes = 0;
     if (merged.achievementFlags === undefined) merged.achievementFlags = {};
     if (merged.unlockedAchievements === undefined) merged.unlockedAchievements = [];
+    if (merged.lastActivityDate === undefined) merged.lastActivityDate = null; 
     merged.character = migrateCharacter(merged.character); // migrate from old avatar schema, if needed
     return merged;
   } catch (e) {
@@ -838,6 +840,50 @@ function addXp(amount) {
   saveProgress(progress);
   render();
 }
+
+// Returns local YYYY-MM-DD (not UTC — avoids a day-boundary mismatch for
+// users west of UTC where Date#toISOString() would show "yesterday").
+function _localDateStr(d = new Date()) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function _daysBetween(dateStrA, dateStrB) {
+  const a = new Date(dateStrA + 'T00:00:00');
+  const b = new Date(dateStrB + 'T00:00:00');
+  return Math.round((b - a) / 86400000);
+}
+
+// Call once per "activity" (lesson completed). Idempotent per calendar day.
+function recordStreakActivity() {
+  const today = _localDateStr();
+
+  if (progress.lastActivityDate === today) return; // already counted today
+
+  if (!progress.lastActivityDate) {
+    progress.streak = 1;
+  } else {
+    const gap = _daysBetween(progress.lastActivityDate, today);
+    if (gap === 1) {
+      progress.streak += 1;
+    } else if (gap > 1) {
+      const freezesNeeded = gap - 1;
+      if (progress.streakFreezes >= freezesNeeded) {
+        progress.streakFreezes -= freezesNeeded;
+        progress.streak += 1; // freeze(s) bridged the gap, streak continues
+      } else {
+        progress.streak = 1; // streak broken
+      }
+    }
+    // gap <= 0 (clock skew/back-dated) — leave streak untouched
+  }
+
+  progress.lastActivityDate = today;
+  saveProgress(progress);
+}
+
 document.getElementById('continueLessonBtn')?.addEventListener('click', () => {
   addXp(10);
 });
@@ -1239,6 +1285,7 @@ async function openLesson(lessonId) {
   if (typeof progress !== 'undefined') {
     progress.currentLessonId = lessonId;
     saveProgress(progress);
+    renderCourseMap();
   }
 
   // Handle mark complete (toggleable)
@@ -1252,6 +1299,7 @@ async function openLesson(lessonId) {
 
   completeBtn.onclick = () => {
     const idx = progress.completedLessons.indexOf(lessonId);
+    recordStreakActivity();
     if (idx === -1) {
       progress.completedLessons.push(lessonId);
       addXp(10);
