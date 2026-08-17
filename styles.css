@@ -1,11 +1,11 @@
 /* --- COLOR PALETTE & VARIABLES --- */
 :root {
-  --color-sky-light: #6ec7e2;
-  --color-teal: #1c7e9c;
-  --color-teal-dark: #155c73;
-  --color-peach-light: #fde3c8;
-  --color-orange: #fea983;
-  --color-bg-cream: #fbf2e8;
+  --color-sky-light: #6EC7E2;
+  --color-teal: #1C7E9C;
+  --color-teal-dark: #155C73;
+  --color-peach-light: #FDE3C8;
+  --color-orange: #FEA983;
+  --color-bg-cream: #FBF2E8;
 
   --bg-sidebar: var(--color-teal-dark);
   --bg-sidebar-hover: var(--color-teal);
@@ -39,9 +39,7 @@
 }
 
 body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-app);
   color: var(--text-main);
   display: flex;
@@ -122,9 +120,7 @@ body {
   cursor: pointer;
   z-index: 10;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition:
-    background-color 0.2s,
-    transform 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .toggle-sidebar-btn:hover {
@@ -252,7 +248,7 @@ body {
   max-width: 1400px;
 }
 
-.sidebar.collapsed ~ .main-content {
+.sidebar.collapsed~.main-content {
   margin-left: var(--sidebar-collapsed-width);
 }
 
@@ -634,9 +630,7 @@ body {
   font-size: 0.95rem;
   color: var(--text-main);
   outline: none;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-input-wrapper input:focus {
@@ -720,10 +714,7 @@ body {
   justify-content: space-between;
   gap: 1rem;
   min-height: 130px;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s,
-    border-color 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
 .lesson-card:hover {
@@ -833,9 +824,7 @@ body {
   color: var(--text-main);
   text-decoration: none;
   border-radius: var(--radius-sm);
-  transition:
-    background-color 0.15s,
-    color 0.15s;
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .quick-jump-item:hover {
@@ -1238,7 +1227,7 @@ dialog.modal::backdrop {
 }
 
 .xp-info-wrapper:hover .xp-tooltip,
-.xp-info-btn:focus-visible ~ .xp-tooltip {
+.xp-info-btn:focus-visible~.xp-tooltip {
   display: block;
 }
 
@@ -1721,7 +1710,7 @@ dialog.modal::backdrop {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: 0.875rem;
-  font-family: "Courier New", monospace;
+  font-family: 'Courier New', monospace;
   font-size: 0.8rem;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -1729,6 +1718,7 @@ dialog.modal::backdrop {
 }
 
 @keyframes shake-animation {
+
   0%,
   100% {
     transform: translateX(0);
@@ -1746,6 +1736,7 @@ dialog.modal::backdrop {
 .shake-animation {
   animation: shake-animation 0.3s;
 }
+
 
 .avatar-option {
   display: flex;
@@ -1802,23 +1793,23 @@ dialog.modal::backdrop {
   color: var(--color-teal-dark);
 }
 
-.lesson-medium[data-medium="V"] {
+.lesson-medium[data-medium='V'] {
   background-color: #fee2e2;
   color: #b91c1c;
 }
 
-.lesson-medium[data-medium="I"] {
+.lesson-medium[data-medium='I'] {
   background-color: #dbeafe;
   color: #0369a1;
 }
 
-.lesson-medium[data-medium="S"] {
+.lesson-medium[data-medium='S'] {
   background-color: #fef3c7;
   color: #92400e;
 }
 
-.lesson-medium[data-medium="MCQ"],
-.lesson-medium[data-medium="FRQ"] {
+.lesson-medium[data-medium='MCQ'],
+.lesson-medium[data-medium='FRQ'] {
   background-color: #f3e8ff;
   color: #6b21a8;
 }
@@ -1970,23 +1961,15 @@ dialog.modal::backdrop {
   color: var(--text-main);
 }
 
-.lesson-h1,
-.lesson-h2,
-.lesson-h3 {
+.lesson-h1, .lesson-h2, .lesson-h3 {
   color: var(--color-teal-dark);
   font-weight: 800;
   margin: 1.5rem 0 0.75rem 0;
 }
 
-.lesson-h1 {
-  font-size: 1.4rem;
-}
-.lesson-h2 {
-  font-size: 1.2rem;
-}
-.lesson-h3 {
-  font-size: 1.05rem;
-}
+.lesson-h1 { font-size: 1.4rem; }
+.lesson-h2 { font-size: 1.2rem; }
+.lesson-h3 { font-size: 1.05rem; }
 
 .lesson-paragraph {
   margin-bottom: 1rem;
@@ -2005,7 +1988,7 @@ dialog.modal::backdrop {
   color: var(--color-teal-dark);
   padding: 0.15rem 0.4rem;
   border-radius: var(--radius-sm);
-  font-family: "Courier New", monospace;
+  font-family: 'Courier New', monospace;
   font-size: 0.85em;
 }
 
