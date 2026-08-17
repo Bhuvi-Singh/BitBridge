@@ -10,7 +10,7 @@ Java is not directly interpreted like Python. Instead:
 2. The compiler (`javac`) translates it into bytecode, stored in a `.class` file
 3. The Java Virtual Machine (JVM) runs that bytecode with the `java` command
 
-This two-step process is why a syntax error shows up at *compile time*, while something like dividing by zero shows up at *run time*.
+This two-step process is why a syntax error shows up at _compile time_, while something like dividing by zero shows up at _run time_.
 
 ## The main Method Signature
 

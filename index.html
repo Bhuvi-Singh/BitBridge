@@ -1,448 +1,779 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BitBridge Learning Dashboard</title>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-XJQNFLSMRJ"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BitBridge Learning Dashboard</title>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XJQNFLSMRJ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
+      // Disable unload tracking to allow BFCache
+      gtag("config", "G-XJQNFLSMRJ", {
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
+        // Disable session tracking via unload
+        send_page_view: true,
+      });
 
-    gtag('config', 'G-XJQNFLSMRJ');
-  </script>
-  <link rel="stylesheet" href="styles.css">
-</head>
+      // Explicitly disable transport to avoid unload event
+      gtag("set", {
+        page_path: window.location.pathname,
+      });
+    </script>
+  </head>
 
-<body>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <button
+        class="toggle-sidebar-btn"
+        id="sidebarToggleBtn"
+        aria-label="Toggle Sidebar"
+        aria-expanded="true"
+      >
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15.75 19.5 8.25 12l7.5-7.5"
+          />
+        </svg>
+      </button>
 
-  <aside class="sidebar" id="sidebar">
-    <button class="toggle-sidebar-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar" aria-expanded="true">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-      </svg>
-    </button>
+      <header class="sidebar-header">
+        <div class="brand-title">
+          <span class="brand-badge">BB</span>
+          <span class="brand-name">BitBridge</span>
+        </div>
+        <div class="brand-subtitle">Learn · Build · Master</div>
+      </header>
 
-    <header class="sidebar-header">
-      <div class="brand-title">
-        <span class="brand-badge">BB</span>
-        <span class="brand-name">BitBridge</span>
+      <nav class="sidebar-nav" aria-label="Primary Navigation">
+        <a href="#" class="nav-item active" data-view="view-dashboard">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+            />
+          </svg>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-course-map">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689A1.125 1.125 0 0 0 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"
+            />
+          </svg>
+          <span class="nav-text">Course Map</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-profile">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+            />
+          </svg>
+          <span class="nav-text">Profile</span>
+        </a>
+        <a href="#" class="nav-item" data-view="view-visualizer">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+            />
+          </svg>
+          <span class="nav-text">Visualizer</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <button
+            type="button"
+            class="avatar-mini"
+            id="openCharacterModalSidebar"
+            title="Customize Character"
+          ></button>
+          <div class="user-info-text">
+            <div class="user-name" id="sidebarUserName">Byte Scholar</div>
+            <div class="user-level" id="sidebarUserLevel">
+              Level 1 · AP CS A
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="brand-subtitle">Learn · Build · Master</div>
-    </header>
+    </aside>
 
-    <nav class="sidebar-nav" aria-label="Primary Navigation">
-      <a href="#" class="nav-item active" data-view="view-dashboard">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-        </svg>
-        <span class="nav-text">Dashboard</span>
-      </a>
-      <a href="#" class="nav-item" data-view="view-course-map">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689A1.125 1.125 0 0 0 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
-        </svg>
-        <span class="nav-text">Course Map</span>
-      </a>
-      <a href="#" class="nav-item" data-view="view-profile">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-        </svg>
-        <span class="nav-text">Profile</span>
-      </a>
-      <a href="#" class="nav-item" data-view="view-visualizer">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-        </svg>
-        <span class="nav-text">Visualizer</span>
-      </a>
-    </nav>
+    <main class="main-content" id="mainContent">
+      <div class="view-content active" id="view-dashboard">
+        <section class="dashboard-hero">
+          <div class="hero-text-content">
+            <div class="hero-badge">AP Computer Science A</div>
+            <h1 class="hero-title">
+              Welcome back, <span id="welcomeUserName">Byte Scholar</span>!
+            </h1>
+            <p class="hero-description" id="heroLessonDescription">
+              Ready to continue your journey? You're currently mastering Java
+              Primitive Types & Variables.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="continueLessonBtn">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span>Continue Lesson</span>
+              </button>
+              <button class="btn btn-secondary" id="viewCourseMapBtn">
+                <svg
+                  class="icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689A1.125 1.125 0 0 0 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"
+                  />
+                </svg>
+                <span>Course Map</span>
+              </button>
+            </div>
+          </div>
 
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <button type="button" class="avatar-mini" id="openCharacterModalSidebar" title="Customize Character"></button>
-        <div class="user-info-text">
-          <div class="user-name" id="sidebarUserName">Byte Scholar</div>
-          <div class="user-level" id="sidebarUserLevel">Level 1 · AP CS A</div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <main class="main-content" id="mainContent">
-
-    <div class="view-content active" id="view-dashboard">
-
-      <section class="dashboard-hero">
-        <div class="hero-text-content">
-          <div class="hero-badge">AP Computer Science A</div>
-          <h1 class="hero-title">Welcome back, <span id="welcomeUserName">Byte Scholar</span>!</h1>
-          <p class="hero-description" id="heroLessonDescription">Ready to continue your journey? You're currently
-            mastering Java Primitive Types & Variables.</p>
-          <div class="hero-actions">
-            <button class="btn btn-primary" id="continueLessonBtn">
-              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
-                  clip-rule="evenodd" />
+          <div class="level-progress-card">
+            <div class="level-circle-container">
+              <svg
+                class="progress-ring"
+                width="120"
+                height="120"
+                viewBox="0 0 120 120"
+              >
+                <circle
+                  class="progress-ring-bg"
+                  cx="60"
+                  cy="60"
+                  r="48"
+                  stroke-width="10"
+                />
+                <circle
+                  class="progress-ring-fill"
+                  id="levelProgressCircle"
+                  cx="60"
+                  cy="60"
+                  r="48"
+                  stroke-width="10"
+                />
               </svg>
-              <span>Continue Lesson</span>
-            </button>
-            <button class="btn btn-secondary" id="viewCourseMapBtn">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689A1.125 1.125 0 0 0 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
-              </svg>
-              <span>Course Map</span>
-            </button>
-          </div>
-
-        </div>
-
-        <div class="level-progress-card">
-          <div class="level-circle-container">
-            <svg class="progress-ring" width="120" height="120" viewBox="0 0 120 120">
-              <circle class="progress-ring-bg" cx="60" cy="60" r="48" stroke-width="10" />
-              <circle class="progress-ring-fill" id="levelProgressCircle" cx="60" cy="60" r="48" stroke-width="10" />
-            </svg>
-            <div class="level-circle-text">
-              <span class="level-num-display" id="userLevelDisplay">Lvl 1</span>
-              <span class="level-pct-display" id="userLevelPercent">0%</span>
+              <div class="level-circle-text">
+                <span class="level-num-display" id="userLevelDisplay"
+                  >Lvl 1</span
+                >
+                <span class="level-pct-display" id="userLevelPercent">0%</span>
+              </div>
             </div>
-          </div>
-          <div class="level-info">
-            <div class="level-title-row">
-              <h3 class="level-title-display" id="userLevelTitle">Beginner Coder</h3>
-              <span class="xp-info-wrapper">
-                <button class="xp-info-btn" id="xpInfoBtn" type="button" aria-label="How XP works">
-                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.5m0 3h.008v.008h-.008v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                </button>
-                <div class="xp-tooltip" role="tooltip">
-                  <strong>Earning XP</strong>
-                  <ul>
-                    <li>Complete a lesson: <b>+10 XP</b></li>
-                    <li>Visualizer exploration: <b>+5 XP</b></li>
-                    <li>Quiz answered (right or wrong): <b>+10 XP</b></li>
-                    <li>Streak bonus: <b>+10 XP</b> each day</li>
-                  </ul>
-                  <strong>Level Unlocks</strong>
-                  <p>Hitting each new level automatically unlocks avatar cosmetics (hats, shirts, color palettes,
-                    badges) in the customization drawer.</p>
-                </div>
-              </span>
+            <div class="level-info">
+              <div class="level-title-row">
+                <h3 class="level-title-display" id="userLevelTitle">
+                  Beginner Coder
+                </h3>
+                <span class="xp-info-wrapper">
+                  <button
+                    class="xp-info-btn"
+                    id="xpInfoBtn"
+                    type="button"
+                    aria-label="How XP works"
+                  >
+                    <svg
+                      class="icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.5m0 3h.008v.008h-.008v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                      />
+                    </svg>
+                  </button>
+                  <div class="xp-tooltip" role="tooltip">
+                    <strong>Earning XP</strong>
+                    <ul>
+                      <li>Complete a lesson: <b>+10 XP</b></li>
+                      <li>Visualizer exploration: <b>+5 XP</b></li>
+                      <li>Quiz answered (right or wrong): <b>+10 XP</b></li>
+                      <li>Streak bonus: <b>+10 XP</b> each day</li>
+                    </ul>
+                    <strong>Level Unlocks</strong>
+                    <p>
+                      Hitting each new level automatically unlocks avatar
+                      cosmetics (hats, shirts, color palettes, badges) in the
+                      customization drawer.
+                    </p>
+                  </div>
+                </span>
+              </div>
+              <p class="xp-counter-text" id="userXpDisplay">0 / 1000 XP</p>
+              <div class="xp-bar-container">
+                <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+              </div>
             </div>
-            <p class="xp-counter-text" id="userXpDisplay">0 / 1000 XP</p>
-            <div class="xp-bar-container">
-              <div class="xp-bar-fill" id="xpBarFill" style="width: 0%;"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon-wrapper xp-theme">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
-            </svg>
-          </div>
-          <div class="stat-details">
-            <div class="stat-label">Total XP</div>
-            <div class="stat-value" id="totalXpValue">0</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon-wrapper streak-theme">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
-            </svg>
-          </div>
-          <div class="stat-details">
-            <div class="stat-label">Day Streak</div>
-            <div class="stat-value" id="dayStreakValue">1</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon-wrapper completed-theme">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-          </div>
-          <div class="stat-details">
-            <div class="stat-label">Lessons Completed</div>
-            <div class="stat-value" id="completedLessonsValue">0</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon-wrapper freeze-theme">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286Zm0 13.036h.008v.008H12v-.008Z" />
-            </svg>
-          </div>
-          <div class="stat-details">
-            <div class="stat-label">Streak Freezes</div>
-            <div class="stat-value" id="streakFreezesValue">0</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="dashboard-columns">
-        <div class="calendar-card">
-          <div class="calendar-header">
-            <h2 class="section-title" id="calendarTitle">Streak Calendar</h2>
-            <div class="calendar-nav">
-              <button class="calendar-nav-btn" id="calendarPrevBtn" type="button" aria-label="Previous month">‹</button>
-              <select id="calendarMonthSelect" class="calendar-month-select" aria-label="Select month"></select>
-              <button class="calendar-nav-btn" id="calendarNextBtn" type="button" aria-label="Next month">›</button>
-            </div>
-          </div>
-          <div class="calendar-grid" id="calendarGrid"></div>
-        </div>
-
-        <section class="dashboard-section">
-          <div class="section-header-row">
-            <h2 class="section-title">Achievements</h2>
-            <button class="btn btn-secondary btn-sm" id="viewAllAchievementsBtn">View All</button>
-          </div>
-          <div class="achievements-grid" id="achievementsGrid">
           </div>
         </section>
-      </section>
 
-    </div>
-
-    <div class="view-content" id="view-course-map">
-
-      <div class="course-map-header">
-        <div class="track-switcher">
-          <button class="track-tab active" data-track="ap-csa" aria-selected="true">AP Computer Science A</button>
-          <button class="track-tab" data-track="dsa" aria-selected="false">Data Structures & Algorithms</button>
-        </div>
-
-        <div class="search-section">
-          <div class="search-counter" id="searchCounter" aria-live="polite">Showing all lessons</div>
-          <div class="search-input-wrapper">
-            <svg class="icon search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
-            <input type="text" id="lesson-search"
-              placeholder="Search lessons by title, topic, or lesson number (e.g., '1.3', 'Recursion')..."
-              aria-label="Search lessons">
-          </div>
-        </div>
-      </div>
-
-      <div class="course-map-layout">
-        <div class="course-map-units" id="courseMapUnits">
-        </div>
-
-        <aside class="quick-jump-sidebar">
-          <div class="quick-jump-title">Jump to Unit</div>
-          <nav class="quick-jump-list" id="quickJumpList" aria-label="Unit quick jump">
-          </nav>
-        </aside>
-      </div>
-
-    </div>
-
-    <div class="view-content" id="view-profile">
-      <div class="profile-card">
-        <div class="profile-header">
-          <div class="profile-avatar-large" id="profileAvatarDisplay"></div>
-          <div class="profile-details">
-            <h2 id="profileUserName">Byte Scholar</h2>
-            <p id="profileUserLevel">Level 1 · AP CS A Track</p>
-            <button class="btn btn-secondary btn-sm" id="openCharacterModalProfile">Customize Character</button>
-          </div>
-        </div>
-
-
-        <div class="profile-stats">
-          <div class="profile-stat-box">
-            <div class="profile-stat-val" id="profileTotalXp">0</div>
-            <div class="profile-stat-lbl">Total XP</div>
-          </div>
-          <div class="profile-stat-box">
-            <div class="profile-stat-val" id="profileStreak">1</div>
-            <div class="profile-stat-lbl">Day Streak</div>
-          </div>
-          <div class="profile-stat-box">
-            <div class="profile-stat-val" id="profileCompleted">0</div>
-            <div class="profile-stat-lbl">Lessons Completed</div>
-          </div>
-        </div>
-
-        <div class="profile-actions">
-          <button class="btn btn-danger" id="resetProgressBtn">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
-            <span>Reset All Progress</span>
-          </button>
-          <button class="btn btn-secondary" id="exportDataBtn">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M7.5 7.5 12 3m0 0 4.5 4.5M12 3v13.5" />
-            </svg>
-            <span>Export Data</span>
-          </button>
-          <button class="btn btn-secondary" id="importDataBtn">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-            <span>Import Data</span>
-          </button>
-        </div>
-      </div>
-      <div class="dashboard-section achievements-full-section" id="allAchievementsSection">
-        <h2 class="section-title">All Achievements</h2>
-        <div id="allAchievementsGrid"></div>
-      </div>
-    </div>
-
-    <div class="view-content" id="view-visualizer">
-      <div class="dashboard-section visualizer-section">
-        <h2 class="section-title">Algorithm Visualizer</h2>
-
-        <!-- Data Structure Selector -->
-        <div class="viz-selector-row">
-          <label for="vizAlgoSelector" class="viz-selector-label">Choose a data structure / algorithm:</label>
-          <select id="vizAlgoSelector" class="viz-algo-selector"></select>
-        </div>
-
-        <div class="visualizer-layout">
-          <div class="visualizer-main">
-            <!-- Algorithm-Specific Controls -->
-            <div id="vizAlgoControls" class="visualizer-algo-controls"></div>
-
-            <!-- Canvas -->
-            <div class="visualizer-canvas-wrapper">
-              <canvas id="algoCanvas" class="visualizer-canvas" width="800" height="500"></canvas>
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-wrapper xp-theme">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"
+                />
+              </svg>
             </div>
-
-            <!-- Playback Controls -->
-            <div class="visualizer-playback-controls">
-              <button class="btn btn-sm" id="vizSkipBackBtn" title="Skip to start">⏮ Skip to start</button>
-              <button class="btn btn-sm" id="vizStepBackBtn" title="Step back">⏮ Back</button>
-              <button class="btn btn-sm" id="vizPlayPauseBtn" title="Play/Pause">▶ Play</button>
-              <button class="btn btn-sm" id="vizStepFwdBtn" title="Step forward">Next ⏭</button>
-              <button class="btn btn-sm" id="vizSkipFwdBtn" title="Skip to end">⏭ Skip to end</button>
-              <label>Speed: <input type="range" id="vizSpeedSlider" min="1" max="100" value="75"
-                  class="speed-slider"></label>
-              <span class="frame-info" id="vizFrameInfo">0 / 0</span>
+            <div class="stat-details">
+              <div class="stat-label">Total XP</div>
+              <div class="stat-value" id="totalXpValue">0</div>
             </div>
           </div>
 
-          <!-- Info Panel: About / Pseudocode / Big O -->
-          <aside class="viz-info-panel">
-            <div class="viz-info-tab-bar">
-              <button class="viz-info-tab active" data-info-tab="about">About</button>
-              <button class="viz-info-tab" data-info-tab="pseudocode">Pseudocode</button>
-              <button class="viz-info-tab" data-info-tab="bigO">Big O</button>
+          <div class="stat-card">
+            <div class="stat-icon-wrapper streak-theme">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
+                />
+              </svg>
             </div>
-            <div class="viz-info-panel-body" id="vizInfoPanelBody">
-              <p>Select a data structure to see details.</p>
+            <div class="stat-details">
+              <div class="stat-label">Day Streak</div>
+              <div class="stat-value" id="dayStreakValue">1</div>
             </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper completed-theme">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-label">Lessons Completed</div>
+              <div class="stat-value" id="completedLessonsValue">0</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper freeze-theme">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286Zm0 13.036h.008v.008H12v-.008Z"
+                />
+              </svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-label">Streak Freezes</div>
+              <div class="stat-value" id="streakFreezesValue">0</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-columns">
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <h2 class="section-title" id="calendarTitle">Streak Calendar</h2>
+              <div class="calendar-nav">
+                <button
+                  class="calendar-nav-btn"
+                  id="calendarPrevBtn"
+                  type="button"
+                  aria-label="Previous month"
+                >
+                  ‹
+                </button>
+                <select
+                  id="calendarMonthSelect"
+                  class="calendar-month-select"
+                  aria-label="Select month"
+                ></select>
+                <button
+                  class="calendar-nav-btn"
+                  id="calendarNextBtn"
+                  type="button"
+                  aria-label="Next month"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+
+          <section class="dashboard-section">
+            <div class="section-header-row">
+              <h2 class="section-title">Achievements</h2>
+              <button
+                class="btn btn-secondary btn-sm"
+                id="viewAllAchievementsBtn"
+              >
+                View All
+              </button>
+            </div>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+          </section>
+        </section>
+      </div>
+
+      <div class="view-content" id="view-course-map">
+        <div class="course-map-header">
+          <div class="track-switcher">
+            <button
+              class="track-tab active"
+              data-track="ap-csa"
+              aria-selected="true"
+            >
+              AP Computer Science A
+            </button>
+            <button class="track-tab" data-track="dsa" aria-selected="false">
+              Data Structures & Algorithms
+            </button>
+          </div>
+
+          <div class="search-section">
+            <div class="search-counter" id="searchCounter" aria-live="polite">
+              Showing all lessons
+            </div>
+            <div class="search-input-wrapper">
+              <svg
+                class="icon search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+              <input
+                type="text"
+                id="lesson-search"
+                placeholder="Search lessons by title, topic, or lesson number (e.g., '1.3', 'Recursion')..."
+                aria-label="Search lessons"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="course-map-layout">
+          <div class="course-map-units" id="courseMapUnits"></div>
+
+          <aside class="quick-jump-sidebar">
+            <div class="quick-jump-title">Jump to Unit</div>
+            <nav
+              class="quick-jump-list"
+              id="quickJumpList"
+              aria-label="Unit quick jump"
+            ></nav>
           </aside>
         </div>
       </div>
-    </div>
 
-    <div class="view-content" id="view-lesson">
-      <div class="dashboard-section lesson-view-section">
-        <div class="lesson-view-header">
-          <button class="btn btn-secondary btn-sm" id="lessonBackBtn">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
-            <span>Back to Course Map</span>
-          </button>
-          <div class="lesson-view-meta">
-            <span class="lesson-view-number" id="lessonViewNumber"></span>
-            <h1 class="lesson-view-title" id="lessonViewTitle">Loading lesson…</h1>
+      <div class="view-content" id="view-profile">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar-large" id="profileAvatarDisplay"></div>
+            <div class="profile-details">
+              <h2 id="profileUserName">Byte Scholar</h2>
+              <p id="profileUserLevel">Level 1 · AP CS A Track</p>
+              <button
+                class="btn btn-secondary btn-sm"
+                id="openCharacterModalProfile"
+              >
+                Customize Character
+              </button>
+            </div>
+          </div>
+
+          <div class="profile-stats">
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="profileTotalXp">0</div>
+              <div class="profile-stat-lbl">Total XP</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="profileStreak">1</div>
+              <div class="profile-stat-lbl">Day Streak</div>
+            </div>
+            <div class="profile-stat-box">
+              <div class="profile-stat-val" id="profileCompleted">0</div>
+              <div class="profile-stat-lbl">Lessons Completed</div>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn btn-danger" id="resetProgressBtn">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+                />
+              </svg>
+              <span>Reset All Progress</span>
+            </button>
+            <button class="btn btn-secondary" id="exportDataBtn">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M7.5 7.5 12 3m0 0 4.5 4.5M12 3v13.5"
+                />
+              </svg>
+              <span>Export Data</span>
+            </button>
+            <button class="btn btn-secondary" id="importDataBtn">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                />
+              </svg>
+              <span>Import Data</span>
+            </button>
           </div>
         </div>
-
-        <div class="lesson-body" id="lessonBody">
-          <p class="lesson-paragraph">Loading lesson…</p>
+        <div
+          class="dashboard-section achievements-full-section"
+          id="allAchievementsSection"
+        >
+          <h2 class="section-title">All Achievements</h2>
+          <div id="allAchievementsGrid"></div>
         </div>
+      </div>
 
-        <div class="lesson-view-footer">
-          <button class="btn btn-primary" id="lessonMarkCompleteBtn">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      <div class="view-content" id="view-visualizer">
+        <div class="dashboard-section visualizer-section">
+          <h2 class="section-title">Algorithm Visualizer</h2>
+
+          <!-- Data Structure Selector -->
+          <div class="viz-selector-row">
+            <label for="vizAlgoSelector" class="viz-selector-label"
+              >Choose a data structure / algorithm:</label
+            >
+            <select id="vizAlgoSelector" class="viz-algo-selector"></select>
+          </div>
+
+          <div class="visualizer-layout">
+            <div class="visualizer-main">
+              <!-- Algorithm-Specific Controls -->
+              <div id="vizAlgoControls" class="visualizer-algo-controls"></div>
+
+              <!-- Canvas -->
+              <div class="visualizer-canvas-wrapper">
+                <canvas
+                  id="algoCanvas"
+                  class="visualizer-canvas"
+                  width="800"
+                  height="500"
+                ></canvas>
+              </div>
+
+              <!-- Playback Controls -->
+              <div class="visualizer-playback-controls">
+                <button
+                  class="btn btn-sm"
+                  id="vizSkipBackBtn"
+                  title="Skip to start"
+                >
+                  ⏮ Skip to start
+                </button>
+                <button
+                  class="btn btn-sm"
+                  id="vizStepBackBtn"
+                  title="Step back"
+                >
+                  ⏮ Back
+                </button>
+                <button
+                  class="btn btn-sm"
+                  id="vizPlayPauseBtn"
+                  title="Play/Pause"
+                >
+                  ▶ Play
+                </button>
+                <button
+                  class="btn btn-sm"
+                  id="vizStepFwdBtn"
+                  title="Step forward"
+                >
+                  Next ⏭
+                </button>
+                <button
+                  class="btn btn-sm"
+                  id="vizSkipFwdBtn"
+                  title="Skip to end"
+                >
+                  ⏭ Skip to end
+                </button>
+                <label
+                  >Speed:
+                  <input
+                    type="range"
+                    id="vizSpeedSlider"
+                    min="1"
+                    max="100"
+                    value="75"
+                    class="speed-slider"
+                /></label>
+                <span class="frame-info" id="vizFrameInfo">0 / 0</span>
+              </div>
+            </div>
+
+            <!-- Info Panel: About / Pseudocode / Big O -->
+            <aside class="viz-info-panel">
+              <div class="viz-info-tab-bar">
+                <button class="viz-info-tab active" data-info-tab="about">
+                  About
+                </button>
+                <button class="viz-info-tab" data-info-tab="pseudocode">
+                  Pseudocode
+                </button>
+                <button class="viz-info-tab" data-info-tab="bigO">Big O</button>
+              </div>
+              <div class="viz-info-panel-body" id="vizInfoPanelBody">
+                <p>Select a data structure to see details.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-content" id="view-lesson">
+        <div class="dashboard-section lesson-view-section">
+          <div class="lesson-view-header">
+            <button class="btn btn-secondary btn-sm" id="lessonBackBtn">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
+              </svg>
+              <span>Back to Course Map</span>
+            </button>
+            <div class="lesson-view-meta">
+              <span class="lesson-view-number" id="lessonViewNumber"></span>
+              <h1 class="lesson-view-title" id="lessonViewTitle">
+                Loading lesson…
+              </h1>
+            </div>
+          </div>
+
+          <div class="lesson-body" id="lessonBody">
+            <p class="lesson-paragraph">Loading lesson…</p>
+          </div>
+
+          <div class="lesson-view-footer">
+            <button class="btn btn-primary" id="lessonMarkCompleteBtn">
+              <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m4.5 12.75 6 6 9-13.5"
+                />
+              </svg>
+              <span id="lessonMarkCompleteLabel">Mark Complete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <dialog
+      class="modal"
+      id="characterModal"
+      aria-labelledby="characterModalTitle"
+    >
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 id="characterModalTitle">Customize Character</h2>
+          <button
+            class="modal-close"
+            id="closeCharacterModal"
+            type="button"
+            aria-label="Close"
+          >
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
             </svg>
-            <span id="lessonMarkCompleteLabel">Mark Complete</span>
           </button>
         </div>
-      </div>
-    </div>
 
+        <div class="modal-body">
+          <div class="avatar-preview" id="modalAvatarPreview"></div>
 
-  </main>
+          <div class="username-picker">
+            <label for="usernameSelect" class="username-picker-label"
+              >Display Name</label
+            >
+            <select id="usernameSelect" class="username-select"></select>
+          </div>
 
-  <dialog class="modal" id="characterModal" aria-labelledby="characterModalTitle">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="characterModalTitle">Customize Character</h2>
-        <button class="modal-close" id="closeCharacterModal" type="button" aria-label="Close">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+          <div class="tab-bar" id="characterTabBar">
+            <div class="tab-item active" data-tab="skin">SKIN</div>
+            <div class="tab-item" data-tab="hair">HAIR</div>
+            <div class="tab-item" data-tab="face">FACE</div>
+            <div class="tab-item" data-tab="top">TOP</div>
+            <div class="tab-item" data-tab="glasses">GLASSES</div>
+            <div class="tab-item" data-tab="hat">HATS</div>
+            <div class="tab-item" data-tab="jewelry">JEWELRY</div>
+            <div class="tab-item" data-tab="prop">PROPS</div>
+          </div>
 
-      <div class="modal-body">
-        <div class="avatar-preview" id="modalAvatarPreview"></div>
-
-        <div class="username-picker">
-          <label for="usernameSelect" class="username-picker-label">Display Name</label>
-          <select id="usernameSelect" class="username-select"></select>
+          <div class="item-grid" id="avatarItemGrid"></div>
         </div>
-
-        <div class="tab-bar" id="characterTabBar">
-          <div class="tab-item active" data-tab="skin">SKIN</div>
-          <div class="tab-item" data-tab="hair">HAIR</div>
-          <div class="tab-item" data-tab="face">FACE</div>
-          <div class="tab-item" data-tab="top">TOP</div>
-          <div class="tab-item" data-tab="glasses">GLASSES</div>
-          <div class="tab-item" data-tab="hat">HATS</div>
-          <div class="tab-item" data-tab="jewelry">JEWELRY</div>
-          <div class="tab-item" data-tab="prop">PROPS</div>
-        </div>
-
-        <div class="item-grid" id="avatarItemGrid"></div>
       </div>
-    </div>
-  </dialog>
+    </dialog>
 
-  <script src="syllabus-data.js"></script>
-  <script type="module" src="visualizers/visualizer-init.js"></script>
-  <script type="module" src="lessonRenderer.js"></script>
-  <script type="module" src="app.js"></script>
-</body>
-
+    <script src="syllabus-data.js"></script>
+    <script type="module" src="visualizers/visualizer-init.js"></script>
+    <script type="module" src="lessonRenderer.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
 </html>
